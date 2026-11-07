@@ -45,9 +45,19 @@ extension MusicPlayers {
         }
         
         private func selectPlayer() {
+            // Older builds (via the group-defaults binding) may have stored this as a string such as "-1",
+            // which reads back as 0 (Apple Music). Normalize it to an integer.
+            let key = UserDefaults.DefaultsKeys.preferredPlayerIndex.key
+            if let str = defaults.object(forKey: key) as? String, let value = Int(str) {
+                defaults.set(value, forKey: key)
+            }
             let idx = defaults[.preferredPlayerIndex]
             if idx == -1 {
-                if defaults[.useSystemWideNowPlaying] {
+                if let adapter = MediaRemoteAdapterPlayer() {
+                    // macOS 15.4+ blocks MediaRemote for third-party apps; the adapter still works
+                    // and covers every player, including YouTube Music in a browser.
+                    designatedPlayer = adapter
+                } else if defaults[.useSystemWideNowPlaying] {
                     designatedPlayer = MusicPlayers.SystemMedia()
                 } else {
                     let players = MusicPlayerName.scriptableCases.compactMap(MusicPlayers.Scriptable.init)

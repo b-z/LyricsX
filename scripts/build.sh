@@ -18,7 +18,18 @@ if grep -q UIKit Carthage/Build/Mac/SnapKit.framework/Headers/SnapKit-Swift.h 2>
   cp -R build/snapkit/Build/Products/Release/SnapKit.framework Carthage/Build/Mac/
 fi
 
-# 3. App 本体（CXShim 要用 CombineX 实现，和上游 DevOpen 脚本一致）
+# 3. mediaremote-adapter：macOS 15.4+ 读取「正在播放」（含浏览器）必须靠它（BSD-3-Clause）
+ADAPTER=build/vendor/mediaremote-adapter
+ADAPTER_REV=0e82bf1c44ec39554fbfc402ec88a48c6ae2a0fd
+if [ ! -d "$ADAPTER/build/MediaRemoteAdapter.framework" ]; then
+  command -v cmake >/dev/null || { echo "需要 cmake：brew install cmake"; exit 1; }
+  rm -rf "$ADAPTER" && mkdir -p build/vendor
+  git clone -q https://github.com/ungive/mediaremote-adapter.git "$ADAPTER"
+  git -C "$ADAPTER" checkout -q "$ADAPTER_REV"
+  (cd "$ADAPTER" && mkdir -p build && cd build && cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64" && cmake --build . -j8)
+fi
+
+# 4. App 本体（CXShim 要用 CombineX 实现，和上游 DevOpen 脚本一致）
 CX_COMBINE_IMPLEMENTATION=CombineX xcodebuild -project LyricsX.xcodeproj -scheme LyricsX -configuration Debug \
   -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO DEVELOPMENT_TEAM= \
   MACOSX_DEPLOYMENT_TARGET=10.13 build

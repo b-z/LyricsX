@@ -113,6 +113,8 @@
 		BB72784A20996DE900231C63 /* PreferenceLabViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB72784920996DE900231C63 /* PreferenceLabViewController.swift */; };
 		BB7EC7B21E4E018C00A0AC3F /* LyricsHUDViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB7EC7B11E4E018C00A0AC3F /* LyricsHUDViewController.swift */; };
 		BB89089E21ED69410078F522 /* Lyrics+Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB89089D21ED69410078F522 /* Lyrics+Language.swift */; };
+		C0FFEE0100000000000000A2 /* MediaRemoteAdapterPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE0100000000000000A1 /* MediaRemoteAdapterPlayer.swift */; };
+		C0FFEE0100000000000000A3 /* MediaRemoteAdapterPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE0100000000000000A1 /* MediaRemoteAdapterPlayer.swift */; };
 		BB947DFB23B4C60000C43BF2 /* SelectedPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB947DFA23B4C60000C43BF2 /* SelectedPlayer.swift */; };
 		BB947DFC23B4C60000C43BF2 /* SelectedPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB947DFA23B4C60000C43BF2 /* SelectedPlayer.swift */; };
 		BB9BCEBA1E843157001BC54B /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9BCEB91E843157001BC54B /* Extension.swift */; };
@@ -269,6 +271,7 @@
 		BB72784920996DE900231C63 /* PreferenceLabViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferenceLabViewController.swift; sourceTree = "<group>"; };
 		BB7EC7B11E4E018C00A0AC3F /* LyricsHUDViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LyricsHUDViewController.swift; sourceTree = "<group>"; };
 		BB89089D21ED69410078F522 /* Lyrics+Language.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Lyrics+Language.swift"; sourceTree = "<group>"; };
+		C0FFEE0100000000000000A1 /* MediaRemoteAdapterPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaRemoteAdapterPlayer.swift; sourceTree = "<group>"; };
 		BB947DFA23B4C60000C43BF2 /* SelectedPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedPlayer.swift; sourceTree = "<group>"; };
 		BB99F39125F21E2A00374642 /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Main.strings; sourceTree = "<group>"; };
 		BB99F39225F21E4700374642 /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Preferences.strings; sourceTree = "<group>"; };
@@ -508,6 +511,7 @@
 				BB4141AD1E458BA800A51775 /* AppDelegate.swift */,
 				BBC1D35A1E485BA7002538A2 /* AppController.swift */,
 				BB947DFA23B4C60000C43BF2 /* SelectedPlayer.swift */,
+				C0FFEE0100000000000000A1 /* MediaRemoteAdapterPlayer.swift */,
 				BB34F7E51F21911700B7C484 /* Updater.swift */,
 				BB03C8881FDF6FC000FBE0DA /* ChineseConverter+Singleton.swift */,
 				BB458C62201C5F4500740C3B /* LyricsMetadata+Extension.swift */,
@@ -532,6 +536,7 @@
 				BB4141A81E458BA800A51775 /* Resources */,
 				BB4141CA1E46CDD700A51775 /* Embed Frameworks */,
 				BB60F3111E889FC000BA1FD2 /* Copy Helper */,
+				C0FFEE0100000000000000A4 /* Copy mediaremote-adapter */,
 				BB9163341F36371700E4E01C /* Upload dSYM */,
 				BB0BE9531F444BE20068FF67 /* Update Localization */,
 				BBC1D5811E4AFE64008869EC /* Bump Build */,
@@ -752,6 +757,25 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		C0FFEE0100000000000000A4 /* Copy mediaremote-adapter */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Copy mediaremote-adapter";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# mediaremote-adapter (BSD-3-Clause) lets LyricsX read Now Playing on macOS 15.4+.\n# Built by scripts/build.sh into build/vendor/mediaremote-adapter.\nSRC=\"${PROJECT_DIR}/build/vendor/mediaremote-adapter\"\nDST=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"\nif [ -d \"$SRC/build/MediaRemoteAdapter.framework\" ]; then\n  rm -rf \"$DST/MediaRemoteAdapter.framework\"\n  cp -R \"$SRC/build/MediaRemoteAdapter.framework\" \"$DST/\"\n  cp \"$SRC/bin/mediaremote-adapter.pl\" \"$DST/\"\nelse\n  echo \"warning: mediaremote-adapter not built; Now Playing from browsers will not work. Run scripts/build.sh\"\nfi\n";
+		};
 		BB0A3ADF22802E30006C2E52 /* Update Build Time */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -918,6 +942,7 @@
 				BBC1D35F1E499A6D002538A2 /* Global.swift in Sources */,
 				BB1B300320E878AE002F1AF8 /* StdExtension.swift in Sources */,
 				BB947DFB23B4C60000C43BF2 /* SelectedPlayer.swift in Sources */,
+				C0FFEE0100000000000000A2 /* MediaRemoteAdapterPlayer.swift in Sources */,
 				BB58B07F1E82901800598D4F /* AutoActivateWindowController.swift in Sources */,
 				BB4919361F00CD800054EA09 /* PreferenceShortcutViewController.swift in Sources */,
 				BB63C24F22774B47008CFFBB /* TouchBarPlaybackControlViewController.swift in Sources */,
@@ -963,6 +988,7 @@
 				BB50787B22014C3900B695C3 /* Global.swift in Sources */,
 				BB50787C22014C3900B695C3 /* StdExtension.swift in Sources */,
 				BB947DFC23B4C60000C43BF2 /* SelectedPlayer.swift in Sources */,
+				C0FFEE0100000000000000A3 /* MediaRemoteAdapterPlayer.swift in Sources */,
 				BB50787D22014C3900B695C3 /* AutoActivateWindowController.swift in Sources */,
 				BB50787E22014C3900B695C3 /* PreferenceShortcutViewController.swift in Sources */,
 				BB50787F22014C3900B695C3 /* PreferenceViewController.swift in Sources */,

@@ -2,31 +2,27 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>DesktopLyricsEnableFurigana</key>
+	<false/>
 	<key>DesktopLyricsEnabled</key>
 	<true/>
-	<key>HideLyricsWhenMousePassingBy</key>
+	<key>DesktopLyricsFontName</key>
+	<string>Optima-Regular</string>
+	<key>DesktopLyricsFontSize</key>
+	<integer>24</integer>
+	<key>DesktopLyricsInsetBottom</key>
+	<integer>20</integer>
+	<key>DesktopLyricsInsetBottomEnabled</key>
 	<true/>
 	<key>DisableLyricsWhenPaused</key>
 	<true/>
 	<key>DisableLyricsWhenSreenShot</key>
 	<true/>
-	<key>DesktopLyricsInsetBottomEnabled</key>
+	<key>GlobalLyricsOffset</key>
+	<integer>0</integer>
+	<key>HideLyricsWhenMousePassingBy</key>
 	<true/>
-	<key>DesktopLyricsInsetBottom</key>
-	<integer>20</integer>
-	<key>DesktopLyricsEnableFurigana</key>
-	<false/>
-	<key>DesktopLyricsFontName</key>
-	<string>Optima-Regular</string>
-	<key>DesktopLyricsFontSize</key>
-	<integer>24</integer>
-	<key>LyricsWindowFontName</key>
-	<string>Helvetica</string>
-	<key>LyricsWindowFontSize</key>
-	<string>13</string>
 	<key>LyricsFilterEnabled</key>
-	<true/>
-	<key>LyricsSmartFilterEnabled</key>
 	<true/>
 	<key>LyricsFilterKeys</key>
 	<array>
@@ -61,9 +57,15 @@
 		<string>SoundTrack</string>
 		<string>アニメ</string>
 	</array>
-	<key>GlobalLyricsOffset</key>
-	<integer>0</integer>
+	<key>LyricsSmartFilterEnabled</key>
+	<true/>
+	<key>LyricsWindowFontName</key>
+	<string>Helvetica</string>
+	<key>LyricsWindowFontSize</key>
+	<string>13</string>
 	<key>NSApplicationCrashOnExceptions</key>
 	<true/>
+	<key>PreferredPlayerIndex</key>
+	<integer>-1</integer>
 </dict>
 </plist>
