@@ -11,9 +11,6 @@ import Cocoa
 import GenericID
 import MASShortcut
 import MusicPlayer
-import AppCenter
-import AppCenterAnalytics
-import AppCenterCrashes
 
 #if !IS_FOR_MAS
 import Sparkle
@@ -42,12 +39,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
     
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         registerUserDefaults()
-        #if RELEASE
-        AppCenter.start(withAppSecret: "36777a05-06fd-422e-9375-a934b3c835a5", services:[
-            Analytics.self,
-            Crashes.self
-        ])
-        #endif
         
         let controller = AppController.shared
         

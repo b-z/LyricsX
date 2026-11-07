@@ -1,1 +1,7 @@
 Product
+
+# local build
+build/
+Carthage/
+carthage.log
+xcbuild.log

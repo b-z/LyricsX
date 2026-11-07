@@ -118,10 +118,6 @@
 		BB9BCEBA1E843157001BC54B /* Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB9BCEB91E843157001BC54B /* Extension.swift */; };
 		BB9C3D8323435A5700860698 /* MusicPlayer in Frameworks */ = {isa = PBXBuildFile; productRef = BB9C3D8223435A5700860698 /* MusicPlayer */; };
 		BB9C3D8523435A6300860698 /* MusicPlayer in Frameworks */ = {isa = PBXBuildFile; productRef = BB9C3D8423435A6300860698 /* MusicPlayer */; };
-		BBA82EFB256AB1490076831F /* AppCenterCrashes in Frameworks */ = {isa = PBXBuildFile; productRef = BBA82EFA256AB1490076831F /* AppCenterCrashes */; };
-		BBA82EFD256AB1490076831F /* AppCenterAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = BBA82EFC256AB1490076831F /* AppCenterAnalytics */; };
-		BBA82F03256AB29F0076831F /* AppCenterAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = BBA82F02256AB29F0076831F /* AppCenterAnalytics */; };
-		BBA82F05256AB29F0076831F /* AppCenterCrashes in Frameworks */ = {isa = PBXBuildFile; productRef = BBA82F04256AB29F0076831F /* AppCenterCrashes */; };
 		BBA82F0A256AB8620076831F /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = BBA82F09256AB8620076831F /* Sparkle */; };
 		BBB03F2D232FB3AF00A3879E /* GenericID in Frameworks */ = {isa = PBXBuildFile; productRef = BBB03F2C232FB3AF00A3879E /* GenericID */; };
 		BBB03F30232FB40400A3879E /* Semver in Frameworks */ = {isa = PBXBuildFile; productRef = BBB03F2F232FB40400A3879E /* Semver */; };
@@ -338,8 +334,6 @@
 				BB34F4A91EFFBCBC008B9E4B /* MASShortcut.framework in Frameworks */,
 				BB22681C234C9085008FAFED /* SwiftCF in Frameworks */,
 				BB6C75E8248B908500804AEB /* TouchBarHelper in Frameworks */,
-				BBA82EFB256AB1490076831F /* AppCenterCrashes in Frameworks */,
-				BBA82EFD256AB1490076831F /* AppCenterAnalytics in Frameworks */,
 				BBB03F2D232FB3AF00A3879E /* GenericID in Frameworks */,
 				BBB03F3D2331DACD00A3879E /* LyricsKit in Frameworks */,
 				BB350ABE23D0613D00500146 /* CXExtensions in Frameworks */,
@@ -356,9 +350,7 @@
 				BBB03F3F2331DBB000A3879E /* GenericID in Frameworks */,
 				BBB03F452331DBB000A3879E /* LyricsKit in Frameworks */,
 				BB22681E234C908D008FAFED /* SwiftCF in Frameworks */,
-				BBA82F03256AB29F0076831F /* AppCenterAnalytics in Frameworks */,
 				BB350AC023D0614800500146 /* CXExtensions in Frameworks */,
-				BBA82F05256AB29F0076831F /* AppCenterCrashes in Frameworks */,
 				BBB03F412331DBB000A3879E /* Semver in Frameworks */,
 				BB9C3D8523435A6300860698 /* MusicPlayer in Frameworks */,
 				BB50788F22014C3900B695C3 /* SnapKit.framework in Frameworks */,
@@ -559,8 +551,6 @@
 				BB350ABD23D0613D00500146 /* CXExtensions */,
 				BB6C75E7248B908500804AEB /* TouchBarHelper */,
 				BB003EFE248F89A700860FF7 /* CXShim */,
-				BBA82EFA256AB1490076831F /* AppCenterCrashes */,
-				BBA82EFC256AB1490076831F /* AppCenterAnalytics */,
 				BBA82F09256AB8620076831F /* Sparkle */,
 			);
 			productName = LyricsX;
@@ -596,8 +586,6 @@
 				BB350ABF23D0614800500146 /* CXExtensions */,
 				BB6C75E9248B908F00804AEB /* TouchBarHelper */,
 				BB003F00248F89B700860FF7 /* CXShim */,
-				BBA82F02256AB29F0076831F /* AppCenterAnalytics */,
-				BBA82F04256AB29F0076831F /* AppCenterCrashes */,
 			);
 			productName = LyricsX;
 			productReference = BB5078AD22014C3900B695C3 /* LyricsX.app */;
@@ -709,7 +697,6 @@
 				BB350ABC23D0613D00500146 /* XCRemoteSwiftPackageReference "CXExtensions" */,
 				BB6C75E6248B908500804AEB /* XCRemoteSwiftPackageReference "TouchBarHelper" */,
 				BB003EFD248F89A700860FF7 /* XCRemoteSwiftPackageReference "CombineX" */,
-				BBA82EF9256AB1490076831F /* XCRemoteSwiftPackageReference "appcenter-sdk-apple" */,
 				BBA82F08256AB8620076831F /* XCRemoteSwiftPackageReference "Sparkle" */,
 			);
 			productRefGroup = BB4141AB1E458BA800A51775 /* Products */;
@@ -841,7 +828,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "appcenter crashes upload-symbols --symbol \"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}\"\n";
+			shellScript = "# AppCenter symbol upload removed (service retired)\n";
 		};
 		BB5078A822014C3900B695C3 /* Update Localization */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -884,7 +871,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
-			shellScript = "appcenter crashes upload-symbols --symbol \"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}\"\n";
+			shellScript = "# AppCenter symbol upload removed (service retired)\n";
 		};
 		BBC1D5811E4AFE64008869EC /* Bump Build */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1467,14 +1454,6 @@
 				minimumVersion = 0.8.2;
 			};
 		};
-		BBA82EF9256AB1490076831F /* XCRemoteSwiftPackageReference "appcenter-sdk-apple" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/microsoft/appcenter-sdk-apple";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.0.0;
-			};
-		};
 		BBA82F08256AB8620076831F /* XCRemoteSwiftPackageReference "Sparkle" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sparkle-project/Sparkle";
@@ -1509,10 +1488,10 @@
 		};
 		BBB03F3B2331DACD00A3879E /* XCRemoteSwiftPackageReference "LyricsKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/ddddxxx/LyricsKit";
+			repositoryURL = "file:///Users/bowei/Documents/GitHub/LyricsKit";
 			requirement = {
-				kind = upToNextMinorVersion;
-				minimumVersion = 0.11.0;
+				branch = lrclib;
+				kind = branch;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -1567,26 +1546,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = BB9C3D8123435A5700860698 /* XCRemoteSwiftPackageReference "MusicPlayer" */;
 			productName = MusicPlayer;
-		};
-		BBA82EFA256AB1490076831F /* AppCenterCrashes */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BBA82EF9256AB1490076831F /* XCRemoteSwiftPackageReference "appcenter-sdk-apple" */;
-			productName = AppCenterCrashes;
-		};
-		BBA82EFC256AB1490076831F /* AppCenterAnalytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BBA82EF9256AB1490076831F /* XCRemoteSwiftPackageReference "appcenter-sdk-apple" */;
-			productName = AppCenterAnalytics;
-		};
-		BBA82F02256AB29F0076831F /* AppCenterAnalytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BBA82EF9256AB1490076831F /* XCRemoteSwiftPackageReference "appcenter-sdk-apple" */;
-			productName = AppCenterAnalytics;
-		};
-		BBA82F04256AB29F0076831F /* AppCenterCrashes */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = BBA82EF9256AB1490076831F /* XCRemoteSwiftPackageReference "appcenter-sdk-apple" */;
-			productName = AppCenterCrashes;
 		};
 		BBA82F09256AB8620076831F /* Sparkle */ = {
 			isa = XCSwiftPackageProductDependency;
