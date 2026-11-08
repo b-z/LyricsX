@@ -37,6 +37,8 @@ final class MediaRemoteAdapterPlayer: ObservableObject {
 
     @Published private(set) var currentTrack: MusicTrack?
     @Published private(set) var playbackState: PlaybackState = .stopped
+    /// Cover art of the current track (fetched once per track; the stream runs without artwork).
+    @Published private(set) var artwork: NSImage?
 
     private let res: Resources
     private let queue = DispatchQueue(label: "LyricsX.MediaRemoteAdapter")
@@ -141,6 +143,8 @@ final class MediaRemoteAdapterPlayer: ObservableObject {
         DispatchQueue.main.async {
             if track.id != self.currentTrack?.id {
                 self.currentTrack = track
+                self.artwork = nil
+                self.fetchArtwork(for: track.id)
             }
             let old = self.playbackState
             if old.isPlaying != state.isPlaying || abs(old.time - state.time) > 0.3 {
@@ -149,6 +153,29 @@ final class MediaRemoteAdapterPlayer: ObservableObject {
         }
     }
 
+    private func fetchArtwork(for trackID: String) {
+        let res = self.res
+        DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            let p = Process()
+            p.executableURL = URL(fileURLWithPath: "/usr/bin/perl")
+            p.arguments = [res.script.path, res.framework.path, "get"]
+            let pipe = Pipe()
+            p.standardOutput = pipe
+            p.standardError = FileHandle.nullDevice
+            guard (try? p.run()) != nil else { return }
+            let data = pipe.fileHandleForReading.readDataToEndOfFile()
+            p.waitUntilExit()
+            guard let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                  let base64 = obj["artworkData"] as? String,
+                  let imageData = Data(base64Encoded: base64, options: .ignoreUnknownCharacters),
+                  let image = NSImage(data: imageData) else { return }
+            DispatchQueue.main.async {
+                guard let self = self, self.currentTrack?.id == trackID else { return }
+                self.artwork = image
+            }
+        }
+    }
+    
     // MARK: - Commands
 
     private func run(_ args: [String]) {

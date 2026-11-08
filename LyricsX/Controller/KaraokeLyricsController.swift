@@ -85,10 +85,34 @@ class KaraokeLyricsWindowController: NSWindowController {
                 LyricsOffsetPanelController.shared.present()
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
                     if let w = LyricsOffsetPanelController.shared.window,
-                       let img = CGWindowListCreateImage(.null, .optionIncludingWindow, CGWindowID(w.windowNumber), [.boundsIgnoreFraming, .bestResolution]) {
+                       let img = CGWindowListCreateImage(.null, .optionIncludingWindow, CGWindowID(truncatingIfNeeded: w.windowNumber), [.boundsIgnoreFraming, .bestResolution]) {
                         try? NSBitmapImageRep(cgImage: img).representation(using: .png, properties: [:])?.write(to: URL(fileURLWithPath: "\(dir)/panel.png"))
                     }
-                    NSLog("[DIAG] done")
+                    let ud = UserDefaults.standard
+                    let keys = ["LyricsHUDSidebarExpanded", "LyricsHUDOffsetBarExpanded"]
+                    let saved = keys.map { ud.object(forKey: $0) }
+                    keys.forEach { ud.set(true, forKey: $0) }
+                    let app = NSApp.delegate as? AppDelegate
+                    app?.showLyricsHUD(nil)
+                    app?.searchLyrics(nil)
+                    zip(keys, saved).forEach { ud.set($1, forKey: $0) }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                        let vc = app?.searchLyricsWC.contentViewController as? SearchLyricsViewController
+                        if let table = vc?.tableView, table.numberOfRows > 0 {
+                            table.selectRowIndexes(IndexSet(integer: 0), byExtendingSelection: false)
+                        }
+                    }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 4) {
+                        for (i, w) in NSApp.windows.enumerated() where w.isVisible && w !== self.window && w.windowNumber > 0 {
+                            if let img = CGWindowListCreateImage(.null, .optionIncludingWindow, CGWindowID(truncatingIfNeeded: w.windowNumber), [.boundsIgnoreFraming, .bestResolution]) {
+                                try? NSBitmapImageRep(cgImage: img).representation(using: .png, properties: [:])?.write(to: URL(fileURLWithPath: "\(dir)/win\(i).png"))
+                                NSLog("[DIAG] win%d %@ %@", i, String(describing: type(of: w.contentViewController ?? NSViewController())), NSStringFromRect(w.frame))
+                            }
+                        }
+                        func dump(_ v: NSView) { if let b = v as? NSButton { NSLog("[DIAG] button '%@' %@ hidden=%d", b.title, NSStringFromRect(b.convert(b.bounds, to: nil)), b.isHiddenOrHasHiddenAncestor) }; v.subviews.forEach(dump) }
+                        NSApp.windows.filter { $0.contentViewController is SearchLyricsViewController }.forEach { w in NSLog("[DIAG] search content %@", NSStringFromRect(w.contentView?.frame ?? .zero)); w.contentView.map(dump) }
+                        NSLog("[DIAG] done")
+                    }
                 }
                 return
             }

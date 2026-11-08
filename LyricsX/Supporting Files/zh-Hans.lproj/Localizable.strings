@@ -37,3 +37,7 @@
 "Adjust Time Offset..." = "调节时间差…";
 "← → adjust by 0.1 s, ⇧← ⇧→ by 0.5 s" = "← → 每次 0.1 秒，⇧← ⇧→ 每次 0.5 秒";
 "Three-line mode (dim previous/next line)" = "三行显示（上下句淡显）";
+"No Lyrics" = "不使用歌词";
+"This song has no matching lyrics; don't show or search lyrics for it" = "这首歌没有对应的歌词：不显示歌词，也不再自动搜索";
+"Show/Hide Now Playing" = "显示/隐藏播放控制";
+"Not Playing" = "未在播放";

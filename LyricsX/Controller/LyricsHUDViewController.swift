@@ -57,7 +57,7 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
         observeDefaults(key: .lyricsWindowFontSize, options: [.new, .initial]) { [unowned self] _, change in
             let fontSize = CGFloat(change.newValue)
             self.lyricsScrollViewTopMargin.constant = fontSize
-            self.lyricsScrollViewLeftMargin.constant = fontSize
+            self.lyricsScrollViewLeftMargin.constant = fontSize + self.sidebarInset
             self.displayLyrics(animation: false)
         }
         
@@ -77,6 +77,75 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
                             queue: .main) { [unowned self] _ in self.isTracking = false }
         
         setupOffsetBar()
+        setupSidebar()
+    }
+    
+    // MARK: - Now Playing Sidebar
+    
+    private static let sidebarExpandedKey = "LyricsHUDSidebarExpanded"
+    private var sidebar: NowPlayingSidebarView?
+    private var sidebarToggle: NSButton?
+    private var sidebarInset: CGFloat {
+        return sidebar?.isHidden == false ? NowPlayingSidebarView.width : 0
+    }
+    
+    /// Cover, title, artist, progress and playback controls on the left; toggled by the button at
+    /// the bottom-left corner (state is remembered, collapsed by default).
+    private func setupSidebar() {
+        guard sidebar == nil else { return }
+        let panel = NowPlayingSidebarView()
+        panel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(panel)
+        
+        let toggle = NSButton(title: "", target: self, action: #selector(toggleSidebar(_:)))
+        toggle.bezelStyle = .recessed
+        toggle.controlSize = .small
+        toggle.setButtonType(.pushOnPushOff)
+        toggle.toolTip = NSLocalizedString("Show/Hide Now Playing", comment: "lyrics window sidebar toggle")
+        if #available(macOS 11.0, *) {
+            toggle.image = NSImage(systemSymbolName: "sidebar.left", accessibilityDescription: toggle.toolTip)
+        } else {
+            toggle.title = "☰"
+        }
+        toggle.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(toggle)
+        
+        NSLayoutConstraint.activate([
+            panel.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            panel.topAnchor.constraint(equalTo: view.topAnchor),
+            panel.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            panel.widthAnchor.constraint(equalToConstant: NowPlayingSidebarView.width),
+            toggle.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
+            toggle.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -6),
+        ])
+        sidebar = panel
+        sidebarToggle = toggle
+        
+        let expanded = UserDefaults.standard.bool(forKey: Self.sidebarExpandedKey)
+        toggle.state = expanded ? .on : .off
+        panel.isHidden = !expanded
+        updateLyricsInset()
+    }
+    
+    @objc private func toggleSidebar(_ sender: NSButton) {
+        let expanded = sender.state == .on
+        UserDefaults.standard.set(expanded, forKey: Self.sidebarExpandedKey)
+        sidebar?.isHidden = !expanded
+        // Grow/shrink the window to the left so the lyrics keep their width.
+        if let window = view.window {
+            var frame = window.frame
+            let delta = NowPlayingSidebarView.width * (expanded ? 1 : -1)
+            frame.origin.x -= delta
+            frame.size.width += delta
+            window.setFrame(frame, display: true, animate: true)
+        }
+        updateLyricsInset()
+    }
+    
+    private func updateLyricsInset() {
+        lyricsScrollViewLeftMargin.constant = CGFloat(defaults[.lyricsWindowFontSize]) + sidebarInset
+        offsetBarLeading?.constant = sidebarInset  // keep the offset bar beside the sidebar
+        displayLyrics(animation: false)
     }
     
     // MARK: - Offset Bar
@@ -84,6 +153,7 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
     private static let offsetBarExpandedKey = "LyricsHUDOffsetBarExpanded"
     private var offsetBar: NSView?
     private var offsetToggle: NSButton?
+    private var offsetBarLeading: NSLayoutConstraint?
     private var keyMonitor: Any?
     private var offsetObservation: NSKeyValueObservation?
     
@@ -116,7 +186,6 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
         view.addSubview(toggle)
         
         NSLayoutConstraint.activate([
-            bar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             bar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             bar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             offsetView.leadingAnchor.constraint(equalTo: bar.leadingAnchor),
@@ -128,6 +197,8 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
         ])
         offsetBar = bar
         offsetToggle = toggle
+        offsetBarLeading = bar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: sidebarInset)
+        offsetBarLeading?.isActive = true
         
         offsetObservation = AppController.shared.observe(\.lyricsOffset, options: [.new]) { [weak self] _, _ in
             DispatchQueue.main.async { self?.displayLyrics(animation: false) }

@@ -45,6 +45,36 @@ class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTable
         
         tableView.setDraggingSourceOperationMask(.copy, forLocal: false)
         normalConstraint.isActive = false
+        addNoLyricsButton()
+    }
+    
+    /// "No Lyrics" button left of "Use Lyrics": for songs without matching lyrics. Same effect as
+    /// the menu's "Wrong Lyrics": clears the current lyrics and stops auto-searching this track.
+    private func addNoLyricsButton() {
+        func find(_ view: NSView) -> NSButton? {
+            if let b = view as? NSButton, b.action == #selector(useLyricsAction(_:)) { return b }
+            for sub in view.subviews { if let b = find(sub) { return b } }
+            return nil
+        }
+        guard let useButton = find(view), let container = useButton.superview else { return }
+        let button = NSButton(title: NSLocalizedString("No Lyrics", comment: "search window button"),
+                              target: self, action: #selector(noLyricsAction(_:)))
+        button.bezelStyle = useButton.bezelStyle
+        button.controlSize = useButton.controlSize
+        button.font = useButton.font
+        button.toolTip = NSLocalizedString("This song has no matching lyrics; don't show or search lyrics for it", comment: "search window button tooltip")
+        button.translatesAutoresizingMaskIntoConstraints = false
+        container.addSubview(button)
+        NSLayoutConstraint.activate([
+            button.trailingAnchor.constraint(equalTo: useButton.leadingAnchor, constant: -8),
+            button.centerYAnchor.constraint(equalTo: useButton.centerYAnchor),
+        ])
+    }
+    
+    @objc private func noLyricsAction(_ sender: Any) {
+        searchCanceller?.cancel()
+        (NSApp.delegate as? AppDelegate)?.wrongLyrics(sender)
+        view.window?.close()
     }
     
     override func viewWillAppear() {
