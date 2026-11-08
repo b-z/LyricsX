@@ -201,7 +201,10 @@ class AppController: NSObject {
         }
         
         let duration = track.duration ?? 0
-        let req = LyricsSearchRequest(searchTerm: .info(title: title, artist: artist), duration: duration, limit: 5)
+        // Search with the first artist only: "A和B" / "A & B" make keyword searches noisy. The full
+        // string is kept in userInfo so scoring can still match any of the artists.
+        let req = LyricsSearchRequest(searchTerm: .info(title: title, artist: primaryArtist(of: artist)),
+                                      duration: duration, limit: 5, userInfo: ["artist": artist])
         searchRequest = req
         searchCanceller = lyricsManager.lyricsPublisher(request: req)
             .timeout(.seconds(10), scheduler: DispatchQueue.lyricsDisplay.cx)
@@ -225,6 +228,11 @@ class AppController: NSObject {
         if defaults[.strictSearchEnabled] && !lyrics.isMatched() {
             return
         }
+        // Wrong lyrics are worse than none: only apply results that actually match the song.
+        // (The search window still lists everything for manual picking.)
+        guard lyrics.isGoodEnoughForAutoSelection else {
+            return
+        }
         if let current = currentLyrics, current.quality >= lyrics.quality {
             return
         }
@@ -234,6 +242,14 @@ class AppController: NSObject {
         lyrics.metadata.needsPersist = true
         currentLyrics = lyrics
     }
+}
+
+/// "Yaffle和Friday Night Plans" → "Yaffle"; "A & B feat. C" → "A".
+func primaryArtist(of artist: String) -> String {
+    let pattern = #"\s*(?:和|与|、|,|，|&|＆|/|／|;|；|\s[x×]\s|\sfeat\.?\s|\sft\.?\s|\sfeaturing\s|\swith\s|\svs\.?\s)"#
+    guard let range = artist.range(of: pattern, options: [.regularExpression, .caseInsensitive]),
+          range.lowerBound > artist.startIndex else { return artist }
+    return String(artist[..<range.lowerBound]).trimmingCharacters(in: .whitespaces)
 }
 
 extension AppController {

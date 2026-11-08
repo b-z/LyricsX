@@ -109,7 +109,8 @@ class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTable
         
         let track = selectedPlayer.currentTrack
         let duration = track?.duration ?? 0
-        let req = LyricsSearchRequest(searchTerm: .info(title: searchTitle, artist: searchArtist), duration: duration, limit: 8)
+        let req = LyricsSearchRequest(searchTerm: .info(title: searchTitle, artist: primaryArtist(of: searchArtist)),
+                                      duration: duration, limit: 8, userInfo: ["artist": searchArtist])
         searchRequest = req
         searchCanceller = lyricsManager.lyricsPublisher(request: req)
             .sink(receiveCompletion: { [unowned self] _ in
