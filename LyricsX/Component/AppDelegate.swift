@@ -44,6 +44,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
         
         karaokeLyricsWC = KaraokeLyricsWindowController()
         karaokeLyricsWC?.showWindow(nil)
+        if let dir = ProcessInfo.processInfo.environment["LX_DIAG_DIR"] { karaokeLyricsWC?.startDiagDemo(dir: dir) }
         
         MenuBarLyricsController.shared.statusItem.menu = statusBarMenu
         statusBarMenu.delegate = self

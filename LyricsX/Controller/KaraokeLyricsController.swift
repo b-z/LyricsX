@@ -67,6 +67,31 @@ class KaraokeLyricsWindowController: NSWindowController {
         }
     }
     
+    // Debug: with LX_DIAG_DIR set, cycle demo lines and save snapshots of this window there.
+    private var diagIndex = 0
+    func startDiagDemo(dir: String) {
+        let pairs = [("Oh", "How I hate the way he makes me feel"),
+                     ("How I hate the way he makes me feel", "And how I hate the way he loves me"),
+                     ("Short", "Another very long line that should not be clipped at all"),
+                     ("Another very long line that should not be clipped at all", "Oh"),
+                     ("Oh", "How I hate the way he makes me feel")]
+        Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { [weak self] timer in
+            guard let self = self else { return }
+            if self.diagIndex >= pairs.count { timer.invalidate(); NSLog("[DIAG] done"); return }
+            let (a, b) = pairs[self.diagIndex]
+            let i = self.diagIndex
+            self.diagIndex += 1
+            self.lyricsView.displayLrc(a, secondLine: b)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                guard let window = self.window,
+                      let img = CGWindowListCreateImage(.null, .optionIncludingWindow, CGWindowID(window.windowNumber), [.boundsIgnoreFraming, .bestResolution]) else { NSLog("[DIAG] no image"); return }
+                let rep = NSBitmapImageRep(cgImage: img)
+                try? rep.representation(using: .png, properties: [:])?.write(to: URL(fileURLWithPath: "\(dir)/frame\(i).png"))
+                NSLog("[DIAG] saved frame%d view=%@", i, NSStringFromRect(self.lyricsView.frame))
+            }
+        }
+    }
+    
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -116,6 +141,7 @@ class KaraokeLyricsWindowController: NSWindowController {
     }
     
     @objc private func handleLyricsDisplay() {
+        if ProcessInfo.processInfo.environment["LX_DIAG_DIR"] != nil { return }
         guard defaults[.desktopLyricsEnabled],
             !defaults[.disableLyricsWhenPaused] || selectedPlayer.playbackState.isPlaying,
             let lyrics = AppController.shared.currentLyrics else {

@@ -64,6 +64,26 @@ class KaraokeLabel: NSTextField {
     // The cached CTFrame is laid out for the bounds at the time it was built. Lines are shown with a
     // size animation, so a frame built mid-animation was too small and the end of the text got cut
     // off for the whole line. Rebuild it whenever the size changes.
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        wantsLayer = true
+        // Redraw the layer whenever the size changes; otherwise a reused label keeps the bitmap it
+        // drew at its old (smaller) size and the new, longer line shows up cut off.
+        layerContentsRedrawPolicy = .duringViewResize
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        wantsLayer = true
+        layerContentsRedrawPolicy = .duringViewResize
+    }
+    
+    /// Drop the cached layout and redraw at the current size.
+    func refreshDisplay() {
+        _ctFrame = nil
+        needsDisplay = true
+    }
+    
     override func setFrameSize(_ newSize: NSSize) {
         let changed = newSize != frame.size
         super.setFrameSize(newSize)

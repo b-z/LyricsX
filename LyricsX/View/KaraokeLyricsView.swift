@@ -146,6 +146,8 @@ class KaraokeLyricsView: NSView {
             layoutSubtreeIfNeeded()
         }, completionHandler: {
             self.mouseTest()
+            // Make sure every visible line is drawn at its final size after the size animation.
+            self.stackView.arrangedSubviews.forEach { ($0 as? KaraokeLabel)?.refreshDisplay() }
         })
     }
     
