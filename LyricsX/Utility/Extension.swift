@@ -204,6 +204,22 @@ extension Lyrics {
     
     func filtrate() {
         filtrate(isIncluded: NSPredicate.lyricsPredicate)
+        disableShortBlankLines()
+    }
+
+    /// Some sources (e.g. QQ Music) put an empty time-tagged line right after every sung line to mark
+    /// where it ends. The desktop lyrics would then go blank mid-line. Keep a blank line only when it
+    /// stands for a real break (the next lyric starts more than `minimumBlankGap` seconds later).
+    private func disableShortBlankLines(minimumBlankGap: TimeInterval = 6) {
+        for (index, line) in lines.enumerated() where line.enabled {
+            guard line.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { continue }
+            let next = lines[(index + 1)...].first {
+                $0.enabled && !$0.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+            }
+            if let next = next, next.position - line.position < minimumBlankGap {
+                lines[index].enabled = false
+            }
+        }
     }
 }
 
