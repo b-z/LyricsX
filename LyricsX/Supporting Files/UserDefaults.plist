@@ -14,6 +14,8 @@
 	<integer>20</integer>
 	<key>DesktopLyricsInsetBottomEnabled</key>
 	<true/>
+	<key>DesktopLyricsThreeLineMode</key>
+	<true/>
 	<key>DisableLyricsWhenPaused</key>
 	<true/>
 	<key>DisableLyricsWhenSreenShot</key>

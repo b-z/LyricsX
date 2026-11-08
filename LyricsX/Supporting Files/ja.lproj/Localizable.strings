@@ -35,3 +35,5 @@
 "Lyrics %@ s earlier" = "歌詞 %@ 秒早め";
 "Lyrics %@ s later" = "歌詞 %@ 秒遅め";
 "No offset" = "タイミング 0";
+"Three-line mode (dim previous/next line)" = "3 行表示（前後の行は薄く）";
+"Cancel" = "キャンセル";

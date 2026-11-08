@@ -36,3 +36,4 @@
 "Adjust Time Offset" = "调节时间差";
 "Adjust Time Offset..." = "调节时间差…";
 "← → adjust by 0.1 s, ⇧← ⇧→ by 0.5 s" = "← → 每次 0.1 秒，⇧← ⇧→ 每次 0.5 秒";
+"Three-line mode (dim previous/next line)" = "三行显示（上下句淡显）";

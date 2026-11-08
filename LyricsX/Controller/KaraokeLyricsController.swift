@@ -61,7 +61,7 @@ class KaraokeLyricsWindowController: NSWindowController {
                 .receive(on: DispatchQueue.lyricsDisplay.cx)
                 .invoke(KaraokeLyricsWindowController.handleLyricsDisplay, weaklyOn: self)
                 .store(in: &self.cancelBag)
-            defaults.publisher(for: [.preferBilingualLyrics, .desktopLyricsOneLineMode])
+            defaults.publisher(for: [.preferBilingualLyrics, .desktopLyricsOneLineMode, .desktopLyricsThreeLineMode])
                 .prepend()
                 .invoke(KaraokeLyricsWindowController.handleLyricsDisplay, weaklyOn: self)
                 .store(in: &self.cancelBag)
@@ -95,7 +95,7 @@ class KaraokeLyricsWindowController: NSWindowController {
             let (a, b) = pairs[self.diagIndex]
             let i = self.diagIndex
             self.diagIndex += 1
-            self.lyricsView.displayLrc(a, secondLine: b)
+            self.lyricsView.displayLyrics(previous: i == 0 ? "" : pairs[i - 1].0, current: a, next: b)
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 guard let window = self.window,
                       let img = CGWindowListCreateImage(.null, .optionIncludingWindow, CGWindowID(window.windowNumber), [.boundsIgnoreFraming, .bestResolution]) else { NSLog("[DIAG] no image"); return }
@@ -230,8 +230,22 @@ class KaraokeLyricsWindowController: NSWindowController {
             }
         }
         
+        // Three-line mode (default): previous line, current line, next line.
+        let threeLine = defaults[.desktopLyricsThreeLineMode] && !defaults[.desktopLyricsOneLineMode] && !secondLineIsTranslation
+        var previousLine = ""
+        if threeLine {
+            previousLine = lyrics.lines[..<index].last { $0.enabled && !isBlank($0) }?.content ?? ""
+            if let converter = ChineseConverter.shared, lyrics.metadata.language?.hasPrefix("zh") == true {
+                previousLine = converter.convert(previousLine)
+            }
+        }
+        
         DispatchQueue.main.async {
-            self.lyricsView.displayLrc(firstLine, secondLine: secondLine)
+            if threeLine {
+                self.lyricsView.displayLyrics(previous: previousLine, current: firstLine, next: secondLine)
+            } else {
+                self.lyricsView.displayLrc(firstLine, secondLine: secondLine)
+            }
             if let upperTextField = self.lyricsView.displayLine1,
                 let timetag = lrc.attachments.timetag {
                 let position = selectedPlayer.playbackTime

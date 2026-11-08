@@ -24,6 +24,31 @@ class PreferenceDisplayViewController: NSViewController, FontSelectTextFieldDele
         hudFontSelectField.fontChangeDelegate = self
         updateScreenFontFallback()
         super.viewDidLoad()
+        addThreeLineModeCheckbox()
+    }
+    
+    /// "Three-line mode" checkbox, placed next to the storyboard's "One line mode" checkbox.
+    private func addThreeLineModeCheckbox() {
+        func find(_ view: NSView) -> NSButton? {
+            if let button = view as? NSButton,
+               (button.infoForBinding(.value)?[.observedKeyPath] as? String) == "values.DesktopLyricsOneLineMode" {
+                return button
+            }
+            for sub in view.subviews { if let b = find(sub) { return b } }
+            return nil
+        }
+        guard let oneLine = find(view), let container = oneLine.superview else { return }
+        let checkbox = NSButton(checkboxWithTitle: NSLocalizedString("Three-line mode (dim previous/next line)", comment: "preference"), target: nil, action: nil)
+        checkbox.translatesAutoresizingMaskIntoConstraints = false
+        checkbox.bind(.value, to: NSUserDefaultsController.shared, withKeyPath: "values.DesktopLyricsThreeLineMode", options: nil)
+        checkbox.bind(.enabled, to: NSUserDefaultsController.shared, withKeyPath: "values.DesktopLyricsOneLineMode",
+                      options: [.valueTransformerName: NSValueTransformerName.negateBooleanTransformerName])
+        container.addSubview(checkbox)
+        NSLayoutConstraint.activate([
+            checkbox.leadingAnchor.constraint(equalTo: oneLine.trailingAnchor, constant: 16),
+            checkbox.centerYAnchor.constraint(equalTo: oneLine.centerYAnchor),
+            checkbox.trailingAnchor.constraint(lessThanOrEqualTo: container.trailingAnchor, constant: -8),
+        ])
     }
     
     func updateScreenFontFallback() {

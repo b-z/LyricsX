@@ -107,6 +107,7 @@ extension UserDefaults.DefaultsKeys {
     
     // Display
     static let desktopLyricsOneLineMode = Key<Bool>("DesktopLyricsOneLineMode")
+    static let desktopLyricsThreeLineMode = Key<Bool>("DesktopLyricsThreeLineMode")
     static let desktopLyricsVerticalMode = Key<Bool>("DesktopLyricsVerticalMode")
     static let desktopLyricsDraggable = Key<Bool>("DesktopLyricsDraggable")
     

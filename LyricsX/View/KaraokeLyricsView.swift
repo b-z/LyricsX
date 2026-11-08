@@ -113,6 +113,64 @@ class KaraokeLyricsView: NSView {
         }
     }
     
+    /// Opacity of the previous/next lines in three-line mode.
+    private let secondaryLineAlpha: CGFloat = 0.4
+    
+    /// Three-line mode: previous and next lines are shown dimmed without glow around the
+    /// highlighted current line.
+    func displayLyrics(previous: String, current: String, next: String) {
+        func isBlank(_ s: String) -> Bool { s.trimmingCharacters(in: .whitespaces).isEmpty }
+        let toBeHide = stackView.arrangedSubviews.compactMap { $0 as? KaraokeLabel }
+        guard !isBlank(current) else {
+            displayLrc("")
+            return
+        }
+        var toBeShow: [(KaraokeLabel, Bool)] = []  // (label, isCurrent) in reading order
+        if !isBlank(previous) { toBeShow.append((lyricsLabel(previous), false)) }
+        let currentLabel = lyricsLabel(current)
+        toBeShow.append((currentLabel, true))
+        var nextLabel: KaraokeLabel?
+        if !isBlank(next) {
+            nextLabel = lyricsLabel(next)
+            toBeShow.append((nextLabel!, false))
+        }
+        displayLine1 = currentLabel
+        displayLine2 = nextLabel
+        for (label, isCurrent) in toBeShow {
+            if isCurrent {
+                label._shadowColor = shadowColor
+            } else {
+                label.shadow = nil
+            }
+        }
+        
+        NSAnimationContext.runAnimationGroup({ context in
+            context.duration = 0.25
+            context.allowsImplicitAnimation = true
+            context.timingFunction = .swiftOut
+            toBeHide.forEach {
+                stackView.removeArrangedSubview($0)
+                $0.isHidden = true
+                $0.alphaValue = 0
+                $0.removeProgressAnimation()
+            }
+            for (label, isCurrent) in toBeShow {
+                if isVertical {
+                    stackView.insertArrangedSubview(label, at: 0)
+                } else {
+                    stackView.addArrangedSubview(label)
+                }
+                label.isHidden = false
+                label.alphaValue = isCurrent ? 1 : secondaryLineAlpha
+            }
+            isHidden = false
+            layoutSubtreeIfNeeded()
+        }, completionHandler: {
+            self.mouseTest()
+            self.stackView.arrangedSubviews.forEach { ($0 as? KaraokeLabel)?.refreshDisplay() }
+        })
+    }
+    
     func displayLrc(_ firstLine: String, secondLine: String = "") {
         var toBeHide = stackView.arrangedSubviews.compactMap { $0 as? KaraokeLabel }
         var toBeShow: [NSTextField] = []
@@ -122,7 +180,7 @@ class KaraokeLyricsView: NSView {
         if firstLine.trimmingCharacters(in: .whitespaces).isEmpty {
             displayLine1 = nil
             shouldHideAll = true
-        } else if toBeHide.count == 2, toBeHide[index].stringValue == firstLine {
+        } else if toBeHide.count == 2, toBeHide[index].stringValue == firstLine, toBeHide[index].alphaValue == 1 {
             displayLine1 = toBeHide[index]
             toBeHide.remove(at: index)
         } else {
@@ -131,8 +189,10 @@ class KaraokeLyricsView: NSView {
             toBeShow.append(label)
         }
         
+        displayLine1.map { $0._shadowColor = shadowColor }
         if !secondLine.trimmingCharacters(in: .whitespaces).isEmpty {
             let label = lyricsLabel(secondLine)
+            label._shadowColor = shadowColor
             displayLine2 = label
             toBeShow.append(label)
         } else {
