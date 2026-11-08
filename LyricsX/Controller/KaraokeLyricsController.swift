@@ -221,6 +221,26 @@ class KaraokeLyricsWindowController: NSWindowController {
     
     private var vecToCenter: CGVector?
     
+    // MARK: Context Menu
+    
+    override func rightMouseDown(with event: NSEvent) {
+        let menu = NSMenu()
+        menu.autoenablesItems = false
+        let appDelegate = NSApp.delegate as? AppDelegate
+        
+        let search = menu.addItem(withTitle: NSLocalizedString("Search Lyrics...", comment: "desktop lyrics context menu"),
+                                  action: #selector(AppDelegate.searchLyrics(_:)), keyEquivalent: "")
+        search.target = appDelegate
+        search.isEnabled = selectedPlayer.currentTrack != nil
+        
+        let delete = menu.addItem(withTitle: NSLocalizedString("Delete Lyrics", comment: "desktop lyrics context menu"),
+                                  action: #selector(AppDelegate.wrongLyrics(_:)), keyEquivalent: "")
+        delete.target = appDelegate
+        delete.isEnabled = AppController.shared.currentLyrics != nil
+        
+        NSMenu.popUpContextMenu(menu, with: event, for: lyricsView)
+    }
+    
     override func mouseDown(with event: NSEvent) {
         let location = lyricsView.convert(event.locationInWindow, from: nil)
         vecToCenter = CGVector(from: location, to: lyricsView.bounds.center)

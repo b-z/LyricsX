@@ -15,3 +15,13 @@
 
 /* alert title */
 "Unable to enable Touch Bar lyrics." = "无法启用触控栏歌词。";
+
+/* b-z fork */
+"Search Lyrics..." = "搜索歌词…";
+"Delete Lyrics" = "删除歌词";
+"LyricsX %@ is available." = "LyricsX %@ 已发布。";
+"You are using %@." = "当前版本：%@。";
+"LyricsX is up to date." = "LyricsX 已是最新版本。";
+"Unable to check for updates." = "无法检查更新。";
+"Open Releases Page" = "打开发布页";
+"Cancel" = "取消";
