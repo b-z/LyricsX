@@ -71,12 +71,10 @@ class KaraokeLyricsWindowController: NSWindowController {
     // Debug: with LX_DIAG_DIR set, cycle demo lines and save snapshots of this window there.
     private var diagIndex = 0
     func startDiagDemo(dir: String) {
-        let pairs = [("Oh", "How I hate the way he makes me feel"),
-                     ("How I hate the way he makes me feel", "And how I hate the way he loves me"),
-                     ("Short", "Another very long line that should not be clipped at all"),
-                     ("Another very long line that should not be clipped at all", "Oh"),
-                     ("Oh", "How I hate the way he makes me feel")]
-        Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { [weak self] timer in
+        let seq = ["Oh", "How I hate the way he makes me feel", "Short", "Another very long line that should not be clipped at all", "Fifth line", "Sixth"]
+        let pairs = (0..<(seq.count - 1)).map { (seq[$0], seq[$0 + 1]) }
+        // Start after the launch placeholder is cleared (3 s after launch).
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4) { Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { [weak self] timer in
             guard let self = self else { return }
             if self.diagIndex >= pairs.count {
                 timer.invalidate()
@@ -120,6 +118,11 @@ class KaraokeLyricsWindowController: NSWindowController {
             let i = self.diagIndex
             self.diagIndex += 1
             self.lyricsView.displayLyrics(previous: i == 0 ? "" : pairs[i - 1].0, current: a, next: b)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                if let window = self.window, let img = CGWindowListCreateImage(.null, .optionIncludingWindow, CGWindowID(truncatingIfNeeded: window.windowNumber), [.boundsIgnoreFraming, .bestResolution]) {
+                    try? NSBitmapImageRep(cgImage: img).representation(using: .png, properties: [:])?.write(to: URL(fileURLWithPath: "\(dir)/mid\(i).png"))
+                }
+            }
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 guard let window = self.window,
                       let img = CGWindowListCreateImage(.null, .optionIncludingWindow, CGWindowID(window.windowNumber), [.boundsIgnoreFraming, .bestResolution]) else { NSLog("[DIAG] no image"); return }
@@ -127,7 +130,7 @@ class KaraokeLyricsWindowController: NSWindowController {
                 try? rep.representation(using: .png, properties: [:])?.write(to: URL(fileURLWithPath: "\(dir)/frame\(i).png"))
                 NSLog("[DIAG] saved frame%d view=%@", i, NSStringFromRect(self.lyricsView.frame))
             }
-        }
+        } }
     }
     
     required init?(coder: NSCoder) {

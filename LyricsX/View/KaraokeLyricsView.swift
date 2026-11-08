@@ -94,8 +94,8 @@ class KaraokeLyricsView: NSView {
 //        cornerRadius = font.pointSize / 2
     }
     
-    private func lyricsLabel(_ content: String) -> KaraokeLabel {
-        if let view = stackView.subviews.lazy.compactMap({ $0 as? KaraokeLabel }).first(where: { !stackView.arrangedSubviews.contains($0) }) {
+    private func lyricsLabel(_ content: String, fresh: Bool = false) -> KaraokeLabel {
+        if !fresh, let view = stackView.subviews.lazy.compactMap({ $0 as? KaraokeLabel }).first(where: { !stackView.arrangedSubviews.contains($0) }) {
             view.alphaValue = 0
             view.stringValue = content
             view.removeProgressAnimation()
@@ -122,7 +122,11 @@ class KaraokeLyricsView: NSView {
         func isBlank(_ s: String) -> Bool { s.trimmingCharacters(in: .whitespaces).isEmpty }
         let toBeHide = stackView.arrangedSubviews.compactMap { $0 as? KaraokeLabel }
         guard !isBlank(current) else {
+            threeLines = nil
             displayLrc("")
+            return
+        }
+        if advanceThreeLines(previous: previous, current: current, next: next) {
             return
         }
         var toBeShow: [(KaraokeLabel, Bool)] = []  // (label, isCurrent) in reading order
@@ -136,6 +140,7 @@ class KaraokeLyricsView: NSView {
         }
         displayLine1 = currentLabel
         displayLine2 = nextLabel
+        threeLines = (toBeShow.first { !$0.1 && $0.0 !== nextLabel }?.0, currentLabel, nextLabel)
         for (label, isCurrent) in toBeShow {
             if isCurrent {
                 label._shadowColor = shadowColor
@@ -171,7 +176,72 @@ class KaraokeLyricsView: NSView {
         })
     }
     
+    /// Labels currently shown in three-line mode.
+    private var threeLines: (previous: KaraokeLabel?, current: KaraokeLabel, next: KaraokeLabel?)?
+    
+    /// Moving on to the next line: instead of rebuilding all three labels, scroll them up — the
+    /// old current line becomes the dimmed previous line, the old next line becomes the
+    /// highlighted current line, and a new next line fades in at the bottom. Very short animation.
+    /// Returns false when this is not a one-line advance (seek, new song...).
+    private func advanceThreeLines(previous: String, current: String, next: String) -> Bool {
+        guard let old = threeLines, !isVertical,
+              let oldNext = old.next, oldNext.stringValue == current,
+              old.current.stringValue == previous,
+              stackView.arrangedSubviews.contains(oldNext) else {
+            return false
+        }
+        // Always a new label here: reusing a hidden one while others are mid-animation picked up
+        // the wrong label.
+        let newNext = next.trimmingCharacters(in: .whitespaces).isEmpty ? nil : lyricsLabel(next, fresh: true)
+        let newPrevious = old.current
+        let newCurrent = oldNext
+        threeLines = (newPrevious, newCurrent, newNext)
+        displayLine1 = newCurrent
+        displayLine2 = newNext
+        newCurrent._shadowColor = shadowColor
+        newPrevious.shadow = nil
+        newPrevious.removeProgressAnimation()
+        newNext?.shadow = nil
+        
+        // Place the new next line just below the old next line before animating, so it slides up.
+        if let newNext = newNext {
+            stackView.addArrangedSubview(newNext)
+            let size = newNext.intrinsicContentSize
+            newNext.frame = NSRect(x: stackView.bounds.midX - size.width / 2,
+                                   y: oldNext.frame.minY - stackView.spacing - size.height,
+                                   width: size.width, height: size.height)
+            newNext.alphaValue = 0
+            newNext.isHidden = false
+        }
+        let rowShift = oldNext.frame.height + stackView.spacing
+        
+        NSAnimationContext.runAnimationGroup({ context in
+            context.duration = 0.12
+            context.allowsImplicitAnimation = true
+            context.timingFunction = CAMediaTimingFunction(name: .easeOut)
+            if let gone = old.previous {
+                // Slide the old previous line up and out.
+                stackView.removeArrangedSubview(gone)
+                gone.removeProgressAnimation()
+                gone.animator().setFrameOrigin(NSPoint(x: gone.frame.minX, y: gone.frame.minY + rowShift))
+                gone.animator().alphaValue = 0
+            }
+            newNext?.animator().alphaValue = secondaryLineAlpha
+            newPrevious.animator().alphaValue = secondaryLineAlpha
+            newCurrent.animator().alphaValue = 1
+            isHidden = false
+            layoutSubtreeIfNeeded()
+        }, completionHandler: {
+            old.previous?.isHidden = true
+            old.previous?.removeFromSuperview()
+            self.mouseTest()
+            self.stackView.arrangedSubviews.forEach { ($0 as? KaraokeLabel)?.refreshDisplay() }
+        })
+        return true
+    }
+    
     func displayLrc(_ firstLine: String, secondLine: String = "") {
+        threeLines = nil
         var toBeHide = stackView.arrangedSubviews.compactMap { $0 as? KaraokeLabel }
         var toBeShow: [NSTextField] = []
         var shouldHideAll = false
