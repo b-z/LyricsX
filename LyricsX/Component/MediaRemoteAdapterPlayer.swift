@@ -7,7 +7,7 @@
 //  file, You can obtain one at https://mozilla.org/MPL/2.0/.
 //
 
-import Foundation
+import Cocoa
 import MusicPlayer
 import CXShim
 
@@ -43,14 +43,23 @@ final class MediaRemoteAdapterPlayer: ObservableObject {
     private var process: Process?
     private var buffer = Data()
     private var stopped = false
+    private var terminationObserver: NSObjectProtocol?
 
     init?() {
         guard let res = Self.resources else { return nil }
         self.res = res
         queue.async { self.startStream() }
+        // Don't leave the perl child running after LyricsX quits.
+        terminationObserver = NotificationCenter.default.addObserver(
+            forName: NSApplication.willTerminateNotification, object: nil, queue: nil
+        ) { [weak self] _ in
+            self?.stopped = true
+            self?.process?.terminate()
+        }
     }
 
     deinit {
+        terminationObserver.map(NotificationCenter.default.removeObserver)
         stopped = true
         process?.terminate()
     }

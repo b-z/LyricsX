@@ -100,8 +100,13 @@ class KaraokeLabel: NSTextField {
         let progression: CTFrameProgression = isVertical ? .rightToLeft : .topToBottom
         let frameAttr: [CTFrame.AttributeKey: Any] = [.progression: progression.rawValue as NSNumber]
         let framesetter = CTFramesetter.create(attributedString: attrString)
-        let (suggestSize, fitRange) = framesetter.suggestFrameSize(constraints: bounds.size, frameAttributes: frameAttr)
-        let path = CGPath(rect: CGRect(origin: .zero, size: suggestSize), transform: nil)
+        // Lay out inside the padded area. The +1 absorbs rounding of the intrinsic size by Auto Layout,
+        // which otherwise makes the last glyphs/line not fit and get dropped.
+        let inset = textInset
+        let constraints = CGSize(width: max(0, bounds.width - 2 * inset) + 1,
+                                 height: max(0, bounds.height - 2 * inset) + 1)
+        let (suggestSize, fitRange) = framesetter.suggestFrameSize(constraints: constraints, frameAttributes: frameAttr)
+        let path = CGPath(rect: CGRect(origin: CGPoint(x: inset, y: inset), size: suggestSize), transform: nil)
         let ctFrame = framesetter.frame(stringRange: fitRange, path: path, frameAttributes: frameAttr)
         _ctFrame = ctFrame
         return ctFrame
@@ -112,7 +117,15 @@ class KaraokeLabel: NSTextField {
         let frameAttr: [CTFrame.AttributeKey: Any] = [.progression: progression.rawValue as NSNumber]
         let framesetter = CTFramesetter.create(attributedString: attrString)
         let constraints = CGSize(width: CGFloat.infinity, height: .infinity)
-        return framesetter.suggestFrameSize(constraints: constraints, frameAttributes: frameAttr).size
+        let size = framesetter.suggestFrameSize(constraints: constraints, frameAttributes: frameAttr).size
+        let inset = textInset
+        return NSSize(width: ceil(size.width) + 2 * inset, height: ceil(size.height) + 2 * inset)
+    }
+    
+    /// Room around the text for glyph overhang (accents, italics) and the 3pt shadow blur,
+    /// which would otherwise be clipped at the label's edges.
+    private var textInset: CGFloat {
+        return ceil((font?.pointSize ?? 24) * 0.1) + 3
     }
     
     override func draw(_ dirtyRect: NSRect) {
@@ -149,7 +162,8 @@ class KaraokeLabel: NSTextField {
                 return
         }
         var lineBounds = line.bounds()
-        var transform = CGAffineTransform.translate(x: origin.x, y: origin.y)
+        // Line origins are relative to the frame path, which starts at (textInset, textInset).
+        var transform = CGAffineTransform.translate(x: origin.x + textInset, y: origin.y + textInset)
         if isVertical {
             transform.transform(by: .swap() * .translate(y: -lineBounds.width))
             transform *= .flip(height: bounds.height)
