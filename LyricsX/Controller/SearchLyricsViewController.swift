@@ -46,6 +46,34 @@ class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTable
         tableView.setDraggingSourceOperationMask(.copy, forLocal: false)
         normalConstraint.isActive = false
         addNoLyricsButton()
+        addTranslationColumn()
+    }
+    
+    private static let translationColumn = NSUserInterfaceItemIdentifier("SearchResult.TableColumn.Translation")
+    
+    /// Extra column showing whether each result has a translation (and in which language).
+    private func addTranslationColumn() {
+        guard tableView.tableColumn(withIdentifier: Self.translationColumn) == nil else { return }
+        let column = NSTableColumn(identifier: Self.translationColumn)
+        column.title = NSLocalizedString("Translation", comment: "search result column")
+        column.width = 60
+        column.minWidth = 40
+        column.isEditable = false
+        column.headerToolTip = NSLocalizedString("Whether the lyrics include a translation", comment: "search result column tooltip")
+        tableView.addTableColumn(column)
+        if let source = tableView.tableColumn(withIdentifier: .searchResultColumnSource),
+           let from = tableView.tableColumns.firstIndex(of: column),
+           let to = tableView.tableColumns.firstIndex(of: source) {
+            tableView.moveColumn(from, toColumn: to)  // put it before "Source"
+        }
+    }
+    
+    private func translationDescription(_ lyrics: Lyrics) -> String {
+        guard lyrics.metadata.hasTranslation else { return "" }
+        let names = lyrics.metadata.translationLanguages.map { code -> String in
+            Locale.current.localizedString(forLanguageCode: code) ?? code
+        }
+        return names.isEmpty ? "✓" : names.joined(separator: ", ")
     }
     
     /// "No Lyrics" button left of "Use Lyrics": for songs without matching lyrics. Same effect as
@@ -184,6 +212,8 @@ class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTable
             return searchResult[row].idTags[.artist] ?? "[lacking]"
         case .searchResultColumnSource:
             return searchResult[row].metadata.service?.rawValue ?? "[lacking]"
+        case Self.translationColumn:
+            return translationDescription(searchResult[row])
         default:
             return nil
         }

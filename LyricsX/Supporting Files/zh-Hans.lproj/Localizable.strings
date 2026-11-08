@@ -41,3 +41,5 @@
 "This song has no matching lyrics; don't show or search lyrics for it" = "这首歌没有对应的歌词：不显示歌词，也不再自动搜索";
 "Show/Hide Now Playing" = "显示/隐藏播放控制";
 "Not Playing" = "未在播放";
+"Translation" = "翻译";
+"Whether the lyrics include a translation" = "歌词是否带翻译";

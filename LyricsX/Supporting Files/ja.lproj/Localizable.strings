@@ -41,3 +41,5 @@
 "This song has no matching lyrics; don't show or search lyrics for it" = "この曲に合う歌詞がない：歌詞を表示せず、自動検索もしない";
 "Show/Hide Now Playing" = "再生コントロールを表示/非表示";
 "Not Playing" = "再生していません";
+"Translation" = "翻訳";
+"Whether the lyrics include a translation" = "歌詞に翻訳が含まれるか";
