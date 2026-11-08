@@ -25,3 +25,11 @@
 "Unable to check for updates." = "无法检查更新。";
 "Open Releases Page" = "打开发布页";
 "Cancel" = "取消";
+"Show lyrics later" = "歌词延后显示";
+"Show lyrics earlier" = "歌词提前显示";
+"Reset" = "归零";
+"Reset offset to 0" = "时间差归零";
+"No lyrics" = "没有歌词";
+"Lyrics %@ s earlier" = "歌词提前 %@ 秒";
+"Lyrics %@ s later" = "歌词延后 %@ 秒";
+"No offset" = "时间差 0";
