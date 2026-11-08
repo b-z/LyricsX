@@ -55,9 +55,22 @@ class KaraokeLabel: NSTextField {
     private func clearCache() {
         _attrString = nil
         _ctFrame = nil
+        invalidateIntrinsicContentSize()  // labels are reused for new lines; their size must follow the text
         needsLayout = true
         needsDisplay = true
         removeProgressAnimation()
+    }
+    
+    // The cached CTFrame is laid out for the bounds at the time it was built. Lines are shown with a
+    // size animation, so a frame built mid-animation was too small and the end of the text got cut
+    // off for the whole line. Rebuild it whenever the size changes.
+    override func setFrameSize(_ newSize: NSSize) {
+        let changed = newSize != frame.size
+        super.setFrameSize(newSize)
+        if changed {
+            _ctFrame = nil
+            needsDisplay = true
+        }
     }
     
     private var _attrString: NSAttributedString?

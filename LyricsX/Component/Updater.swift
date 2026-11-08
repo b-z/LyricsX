@@ -10,7 +10,7 @@
 import Cocoa
 import Semver
 
-private let gitHubPath = "ddddxxx/LyricsX"
+private let gitHubPath = forkGitHubPath
 private let url = URL(string: "https://api.github.com/repos/\(gitHubPath)/releases/latest")!
 
 var remoteVersion: Semver? {

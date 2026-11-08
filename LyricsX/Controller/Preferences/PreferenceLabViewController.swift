@@ -33,7 +33,7 @@ class PreferenceLabViewController: NSViewController {
         alert.addButton(withTitle: NSLocalizedString("Download", comment: ""))
         let handler = { (response: NSApplication.ModalResponse) in
             if response == .alertSecondButtonReturn {
-                let url = URL(string: "https://github.com/XQS6LB3A/LyricsX/releases")!
+                let url = forkReleasesURL
                 NSWorkspace.shared.open(url)
             }
         }

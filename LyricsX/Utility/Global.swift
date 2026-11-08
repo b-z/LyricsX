@@ -27,6 +27,10 @@ let lyricsXErrorDomain = "ddddxxx.LyricsX"
 
 let crowdinProjectURL = URL(string: "https://crowdin.com/project/lyricsx")!
 
+// This fork's GitHub repository; updates are published as its releases.
+let forkGitHubPath = "b-z/LyricsX"
+let forkReleasesURL = URL(string: "https://github.com/\(forkGitHubPath)/releases")!
+
 let defaults = UserDefaults.standard
 let groupDefaults = UserDefaults(suiteName: lyricsXGroupIdentifier)!
 let defaultNC = NotificationCenter.default

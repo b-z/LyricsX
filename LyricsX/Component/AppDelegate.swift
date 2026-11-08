@@ -72,7 +72,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
         #if IS_FOR_MAS
         checkForMASReview(force: true)
         #else
-        SUUpdater.shared()?.checkForUpdatesInBackground()
         if #available(OSX 10.12.2, *) {
             observeDefaults(key: .touchBarLyricsEnabled, options: [.new, .initial]) { _, change in
                 if change.newValue, TouchBarLyricsController.shared == nil {
@@ -148,7 +147,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
             #if IS_FOR_MAS
                 let channel = "App Store"
             #else
-                let channel = "GitHub"
+                let channel = "GitHub (\(forkGitHubPath))"
             #endif
             let versionString = "\(channel) Version \(Bundle.main.semanticVersion!)"
             NSApp.orderFrontStandardAboutPanel(options: [.applicationVersion: versionString])
@@ -162,7 +161,38 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
         #if IS_FOR_MAS
         assert(false, "should not be there")
         #else
-        SUUpdater.shared()?.checkForUpdates(sender)
+        // Sparkle's appcast belongs to upstream; this fork publishes GitHub releases instead.
+        DispatchQueue.global().async {
+            let remote = remoteVersion
+            let local = Bundle.main.semanticVersion
+            DispatchQueue.main.async {
+                let alert = NSAlert()
+                if let remote = remote, let local = local, remote > local {
+                    alert.messageText = String(format: NSLocalizedString("LyricsX %@ is available.", comment: ""), remote.description)
+                    alert.informativeText = String(format: NSLocalizedString("You are using %@.", comment: ""), local.description)
+                    alert.addButton(withTitle: NSLocalizedString("Download", comment: ""))
+                    alert.addButton(withTitle: NSLocalizedString("Cancel", comment: ""))
+                } else if remote != nil {
+                    alert.messageText = NSLocalizedString("LyricsX is up to date.", comment: "")
+                    alert.informativeText = local.map { String(format: NSLocalizedString("You are using %@.", comment: ""), $0.description) } ?? ""
+                    alert.addButton(withTitle: NSLocalizedString("OK", comment: ""))
+                    alert.addButton(withTitle: NSLocalizedString("Open Releases Page", comment: ""))
+                } else {
+                    alert.messageText = NSLocalizedString("Unable to check for updates.", comment: "")
+                    alert.informativeText = forkReleasesURL.absoluteString
+                    alert.addButton(withTitle: NSLocalizedString("Open Releases Page", comment: ""))
+                    alert.addButton(withTitle: NSLocalizedString("Cancel", comment: ""))
+                }
+                NSApp.activate(ignoringOtherApps: true)
+                let response = alert.runModal()
+                let opensPage = remote == nil || (remote.flatMap { r in local.map { r > $0 } } ?? false)
+                    ? response == .alertFirstButtonReturn
+                    : response == .alertSecondButtonReturn
+                if opensPage {
+                    NSWorkspace.shared.open(forkReleasesURL)
+                }
+            }
+        }
         #endif
     }
     

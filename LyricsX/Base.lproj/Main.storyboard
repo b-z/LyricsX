@@ -375,15 +375,6 @@
                                 <action selector="checkUpdateAction:" target="Ady-hI-5gd" id="Ait-5g-99F"/>
                             </connections>
                         </menuItem>
-                        <menuItem title="Donate..." tag="402" id="EoO-ld-6Xv">
-                            <modifierMask key="keyEquivalentModifierMask"/>
-                            <userDefinedRuntimeAttributes>
-                                <userDefinedRuntimeAttribute type="boolean" keyPath="isHiddenDuringMASReview" value="YES"/>
-                            </userDefinedRuntimeAttributes>
-                            <connections>
-                                <segue destination="e4U-yI-muf" kind="show" id="Ssw-2c-afe"/>
-                            </connections>
-                        </menuItem>
                         <menuItem isSeparatorItem="YES" id="eB1-fb-ptE"/>
                         <menuItem title="Quit LyricsX" tag="500" keyEquivalent="q" id="RPR-IV-34T">
                             <connections>
@@ -964,77 +955,6 @@ IA
             </objects>
             <point key="canvasLocation" x="667" y="1073"/>
         </scene>
-        <!--Donate Window Controller-->
-        <scene sceneID="ttD-5N-HU8">
-            <objects>
-                <windowController showSeguePresentationStyle="single" id="e4U-yI-muf" userLabel="Donate Window Controller" customClass="AutoActivateWindowController" customModule="LyricsX" customModuleProvider="target" sceneMemberID="viewController">
-                    <window key="window" title="Donate" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="Donate" animationBehavior="default" id="CW0-AL-Z6N">
-                        <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
-                        <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-                        <rect key="contentRect" x="163" y="208" width="280" height="270"/>
-                        <rect key="screenRect" x="0.0" y="0.0" width="1280" height="800"/>
-                        <connections>
-                            <outlet property="delegate" destination="e4U-yI-muf" id="uFJ-6E-anF"/>
-                        </connections>
-                    </window>
-                    <connections>
-                        <segue destination="cxf-WZ-T1I" kind="relationship" relationship="window.shadowedContentViewController" id="Ve6-mm-IrS"/>
-                    </connections>
-                </windowController>
-                <customObject id="fDl-4Y-pyj" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-390" y="1072"/>
-        </scene>
-        <!--Donate View Controller-->
-        <scene sceneID="Xh3-eq-XhM">
-            <objects>
-                <viewController id="cxf-WZ-T1I" userLabel="Donate View Controller" customClass="DonateViewController" customModule="LyricsX" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" id="Btv-Tm-tpH">
-                        <rect key="frame" x="0.0" y="0.0" width="280" height="248"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                        <subviews>
-                            <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" setsMaxLayoutWidthAtFirstLayout="YES" translatesAutoresizingMaskIntoConstraints="NO" id="odr-DA-p5E">
-                                <rect key="frame" x="18" y="148" width="244" height="80"/>
-                                <textFieldCell key="cell" controlSize="mini" sendsActionOnEndEditing="YES" alignment="left" id="o52-Z0-lue">
-                                    <font key="font" metaFont="system"/>
-                                    <string key="title">If you enjoy using LyricsX, and would like to buy me a cup of coffee, as well as help me keep this software going, you can scan QR code below to make a generous donation.</string>
-                                    <color key="textColor" name="labelColor" catalog="System" colorSpace="catalog"/>
-                                    <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
-                                </textFieldCell>
-                            </textField>
-                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="urv-5s-cvf">
-                                <rect key="frame" x="90" y="24" width="100" height="100"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="100" id="hKN-7P-DeX"/>
-                                    <constraint firstAttribute="height" constant="100" id="yvo-74-KHB"/>
-                                </constraints>
-                                <gestureRecognizers>
-                                    <clickGestureRecognizer delaysPrimaryMouseButtonEvents="YES" numberOfClicksRequired="10" id="PKn-Ur-dmP">
-                                        <connections>
-                                            <action selector="showDebugPanelAction:" target="cxf-WZ-T1I" id="L5e-XM-MLo"/>
-                                        </connections>
-                                    </clickGestureRecognizer>
-                                </gestureRecognizers>
-                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="donate_alipay" id="xyA-hb-xlw"/>
-                            </imageView>
-                        </subviews>
-                        <constraints>
-                            <constraint firstItem="urv-5s-cvf" firstAttribute="centerX" secondItem="Btv-Tm-tpH" secondAttribute="centerX" id="0p8-WO-hdG"/>
-                            <constraint firstItem="urv-5s-cvf" firstAttribute="top" secondItem="odr-DA-p5E" secondAttribute="bottom" constant="24" id="Alp-dR-rMx"/>
-                            <constraint firstItem="odr-DA-p5E" firstAttribute="leading" secondItem="Btv-Tm-tpH" secondAttribute="leading" constant="20" id="Hy7-dw-2g1"/>
-                            <constraint firstItem="odr-DA-p5E" firstAttribute="top" secondItem="Btv-Tm-tpH" secondAttribute="top" constant="20" id="Rho-QX-dGY"/>
-                            <constraint firstItem="odr-DA-p5E" firstAttribute="centerX" secondItem="Btv-Tm-tpH" secondAttribute="centerX" id="tqQ-Fx-mjL"/>
-                            <constraint firstAttribute="bottom" secondItem="urv-5s-cvf" secondAttribute="bottom" constant="24" id="wlD-4n-4eZ"/>
-                        </constraints>
-                    </view>
-                    <connections>
-                        <segue destination="BtN-IJ-KMu" kind="show" identifier="ShowDebugPanel" id="af7-Oe-ieD"/>
-                    </connections>
-                </viewController>
-                <customObject id="r7B-B4-Qpg" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="57" y="1072"/>
-        </scene>
         <!--Debug Window Controller-->
         <scene sceneID="LGx-zh-JH9">
             <objects>
@@ -1090,7 +1010,6 @@ IA
         </scene>
     </scenes>
     <resources>
-        <image name="donate_alipay" width="100" height="100"/>
         <image name="hud_button_lock_off" width="11" height="11"/>
         <image name="hud_button_lock_on" width="11" height="11"/>
         <image name="hud_button_sync_button" width="14" height="12"/>

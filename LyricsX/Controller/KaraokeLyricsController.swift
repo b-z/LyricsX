@@ -118,14 +118,48 @@ class KaraokeLyricsWindowController: NSWindowController {
     @objc private func handleLyricsDisplay() {
         guard defaults[.desktopLyricsEnabled],
             !defaults[.disableLyricsWhenPaused] || selectedPlayer.playbackState.isPlaying,
-            let lyrics = AppController.shared.currentLyrics,
-            let index = AppController.shared.currentLineIndex else {
+            let lyrics = AppController.shared.currentLyrics else {
                 DispatchQueue.main.async {
                     self.lyricsView.displayLrc("", secondLine: "")
                 }
                 return
         }
         
+        // Before the first lyric and after the last one, show the song title and artist instead of
+        // an empty window.
+        func isBlank(_ line: LyricsLine) -> Bool {
+            return line.content.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+        let index = AppController.shared.currentLineIndex
+        let hasLyricsAhead = lyrics.lines[((index ?? -1) + 1)...].contains { $0.enabled && !isBlank($0) }
+        // The last line has no end time; treat it as finished `lastLineHold` seconds after it starts.
+        let lastLineHold: TimeInterval = 10
+        var lastLineFinished = false
+        if let index = index, !hasLyricsAhead, !isBlank(lyrics.lines[index]) {
+            let position = selectedPlayer.playbackTime + lyrics.adjustedTimeDelay
+            let remaining = lyrics.lines[index].position + lastLineHold - position
+            if remaining <= 0 {
+                lastLineFinished = true
+            } else if selectedPlayer.playbackState.isPlaying {
+                DispatchQueue.lyricsDisplay.asyncAfter(deadline: .now() + remaining + 0.05) { [weak self] in
+                    self?.handleLyricsDisplay()
+                }
+            }
+        }
+        if index == nil || lastLineFinished || (isBlank(lyrics.lines[index!]) && !hasLyricsAhead) {
+            let track = selectedPlayer.currentTrack
+            let title = track?.title ?? ""
+            let artist = track?.artist ?? ""
+            DispatchQueue.main.async {
+                if defaults[.desktopLyricsOneLineMode] {
+                    self.lyricsView.displayLrc(artist.isEmpty ? title : "\(title) - \(artist)", secondLine: "")
+                } else {
+                    self.lyricsView.displayLrc(title, secondLine: artist)
+                }
+            }
+            return
+        }
+        guard let index = index else { return }
         let lrc = lyrics.lines[index]
         let next = lyrics.lines[(index + 1)...].first { $0.enabled }
         
