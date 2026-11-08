@@ -1508,7 +1508,7 @@
 		};
 		BBB03F3B2331DACD00A3879E /* XCRemoteSwiftPackageReference "LyricsKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "file:///Users/bowei/Documents/GitHub/LyricsKit";
+			repositoryURL = "https://github.com/b-z/LyricsKit";
 			requirement = {
 				branch = lrclib;
 				kind = branch;

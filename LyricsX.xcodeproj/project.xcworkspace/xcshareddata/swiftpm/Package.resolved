@@ -57,8 +57,8 @@
     },
     {
       "identity" : "lyricskit",
-      "kind" : "localSourceControl",
-      "location" : "/Users/bowei/Documents/GitHub/LyricsKit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/b-z/LyricsKit",
       "state" : {
         "branch" : "lrclib",
         "revision" : "998fe84220f017b4a332e02aee1e293b62fc2203"
