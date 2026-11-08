@@ -47,6 +47,41 @@ class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTable
         normalConstraint.isActive = false
         addNoLyricsButton()
         addTranslationColumn()
+        addScoreColumn()
+        fitColumns()
+    }
+    
+    /// With the extra columns the table got wider than the window and "Source" was pushed out of
+    /// view. Give fixed small widths to the short columns and let the title/artist share the rest.
+    private func fitColumns() {
+        let fixed: [(NSUserInterfaceItemIdentifier, CGFloat)] = [
+            (Self.translationColumn, 52), (Self.scoreColumn, 60), (.searchResultColumnSource, 64),
+        ]
+        for (id, width) in fixed {
+            tableView.tableColumn(withIdentifier: id)?.width = width
+            tableView.tableColumn(withIdentifier: id)?.resizingMask = .userResizingMask
+        }
+        tableView.columnAutoresizingStyle = .uniformColumnAutoresizingStyle
+        tableView.sizeToFit()
+    }
+    
+    private static let scoreColumn = NSUserInterfaceItemIdentifier("SearchResult.TableColumn.Score")
+    
+    /// Match score (0–1, higher is better). "✓" marks results good enough to be applied automatically.
+    private func addScoreColumn() {
+        guard tableView.tableColumn(withIdentifier: Self.scoreColumn) == nil else { return }
+        let column = NSTableColumn(identifier: Self.scoreColumn)
+        column.title = NSLocalizedString("Score", comment: "search result column")
+        column.width = 56
+        column.minWidth = 40
+        column.isEditable = false
+        column.headerToolTip = NSLocalizedString("Match score (0–1). ✓ = good enough to be used automatically", comment: "search result column tooltip")
+        tableView.addTableColumn(column)
+        if let source = tableView.tableColumn(withIdentifier: .searchResultColumnSource),
+           let from = tableView.tableColumns.firstIndex(of: column),
+           let to = tableView.tableColumns.firstIndex(of: source) {
+            tableView.moveColumn(from, toColumn: to)  // before "Source", after "Translation"
+        }
     }
     
     private static let translationColumn = NSUserInterfaceItemIdentifier("SearchResult.TableColumn.Translation")
@@ -214,6 +249,9 @@ class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTable
             return searchResult[row].metadata.service?.rawValue ?? "[lacking]"
         case Self.translationColumn:
             return translationDescription(searchResult[row])
+        case Self.scoreColumn:
+            let lyrics = searchResult[row]
+            return String(format: "%.2f", lyrics.quality) + (lyrics.isGoodEnoughForAutoSelection ? " ✓" : "")
         default:
             return nil
         }

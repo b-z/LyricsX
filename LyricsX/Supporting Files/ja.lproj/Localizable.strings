@@ -43,3 +43,5 @@
 "Not Playing" = "再生していません";
 "Translation" = "翻訳";
 "Whether the lyrics include a translation" = "歌詞に翻訳が含まれるか";
+"Score" = "スコア";
+"Match score (0–1). ✓ = good enough to be used automatically" = "一致スコア（0–1）。✓ は自動で使われる基準を満たすもの";

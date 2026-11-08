@@ -43,3 +43,5 @@
 "Not Playing" = "未在播放";
 "Translation" = "翻译";
 "Whether the lyrics include a translation" = "歌词是否带翻译";
+"Score" = "分数";
+"Match score (0–1). ✓ = good enough to be used automatically" = "匹配分数（0–1）。✓ 表示达到自动选用的标准";
