@@ -227,6 +227,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
         NSApp.activate(ignoringOtherApps: true)
     }
     
+    @IBAction func adjustTimeOffset(_ sender: Any?) {
+        LyricsOffsetPanelController.shared.present()
+    }
+    
     @IBAction func wrongLyrics(_ sender: Any?) {
         guard let track = selectedPlayer.currentTrack else {
             return

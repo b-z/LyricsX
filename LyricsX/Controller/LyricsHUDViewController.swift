@@ -81,13 +81,14 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
     
     // MARK: - Offset Bar
     
+    private static let offsetBarExpandedKey = "LyricsHUDOffsetBarExpanded"
     private var offsetBar: NSView?
-    private var offsetLabel: NSTextField?
-    private var offsetObservation: NSKeyValueObservation?
+    private var offsetToggle: NSButton?
     private var keyMonitor: Any?
+    private var offsetObservation: NSKeyValueObservation?
     
-    /// A strip at the bottom of the window for nudging the current lyrics' time offset.
-    /// Buttons step by 0.1 s / 0.5 s; while the window is key, ← → do the same (hold ⇧ for 0.5 s).
+    /// Time-offset controls at the bottom of the window, collapsed by default behind a small
+    /// toggle button. While expanded and the window is key, ← → nudge the offset.
     private func setupOffsetBar() {
         guard offsetBar == nil else { return }
         
@@ -96,93 +97,59 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
         bar.blendingMode = .withinWindow
         bar.state = .active
         bar.translatesAutoresizingMaskIntoConstraints = false
-        
-        func button(_ title: String, _ delta: Int, _ tip: String) -> NSButton {
-            let b = NSButton(title: title, target: self, action: #selector(offsetButtonAction(_:)))
-            b.bezelStyle = .recessed
-            b.controlSize = .small
-            b.font = .monospacedDigitSystemFont(ofSize: NSFont.smallSystemFontSize, weight: .regular)
-            b.tag = delta
-            b.toolTip = tip
-            return b
-        }
-        let later = NSLocalizedString("Show lyrics later", comment: "offset bar tooltip")
-        let earlier = NSLocalizedString("Show lyrics earlier", comment: "offset bar tooltip")
-        let label = NSTextField(labelWithString: "")
-        label.font = .monospacedDigitSystemFont(ofSize: NSFont.smallSystemFontSize, weight: .medium)
-        label.textColor = .secondaryLabelColor
-        label.alignment = .center
-        label.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        let reset = button(NSLocalizedString("Reset", comment: "offset bar"), 0, NSLocalizedString("Reset offset to 0", comment: "offset bar tooltip"))
-        
-        let stack = NSStackView(views: [
-            button("−0.5", -500, later), button("−0.1", -100, later),
-            label,
-            button("+0.1", 100, earlier), button("+0.5", 500, earlier),
-            reset,
-        ])
-        stack.orientation = .horizontal
-        stack.spacing = 4
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        bar.addSubview(stack)
+        let offsetView = LyricsOffsetView()
+        offsetView.translatesAutoresizingMaskIntoConstraints = false
+        bar.addSubview(offsetView)
         view.addSubview(bar)
+        
+        let toggle = NSButton(title: "", target: self, action: #selector(toggleOffsetBar(_:)))
+        toggle.bezelStyle = .recessed
+        toggle.controlSize = .small
+        toggle.setButtonType(.pushOnPushOff)
+        toggle.toolTip = NSLocalizedString("Adjust Time Offset", comment: "offset panel title")
+        if #available(macOS 11.0, *) {
+            toggle.image = NSImage(systemSymbolName: "timer", accessibilityDescription: toggle.toolTip)
+        } else {
+            toggle.title = "±"
+        }
+        toggle.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(toggle)
+        
         NSLayoutConstraint.activate([
             bar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             bar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             bar.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            stack.leadingAnchor.constraint(equalTo: bar.leadingAnchor, constant: 8),
-            stack.trailingAnchor.constraint(equalTo: bar.trailingAnchor, constant: -8),
-            stack.topAnchor.constraint(equalTo: bar.topAnchor, constant: 4),
-            stack.bottomAnchor.constraint(equalTo: bar.bottomAnchor, constant: -4),
+            offsetView.leadingAnchor.constraint(equalTo: bar.leadingAnchor),
+            offsetView.trailingAnchor.constraint(equalTo: toggle.leadingAnchor, constant: -4),
+            offsetView.topAnchor.constraint(equalTo: bar.topAnchor),
+            offsetView.bottomAnchor.constraint(equalTo: bar.bottomAnchor),
+            toggle.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -8),
+            toggle.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -6),
         ])
         offsetBar = bar
-        offsetLabel = label
+        offsetToggle = toggle
         
-        offsetObservation = AppController.shared.observe(\.lyricsOffset, options: [.initial, .new]) { [weak self] controller, _ in
-            DispatchQueue.main.async { self?.updateOffsetLabel(controller.lyricsOffset) }
+        offsetObservation = AppController.shared.observe(\.lyricsOffset, options: [.new]) { [weak self] _, _ in
+            DispatchQueue.main.async { self?.displayLyrics(animation: false) }
         }
+        
+        let expanded = UserDefaults.standard.bool(forKey: Self.offsetBarExpandedKey)
+        toggle.state = expanded ? .on : .off
+        bar.isHidden = !expanded
         
         keyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            guard let self = self, event.window === self.view.window else { return event }
-            let mods = event.modifierFlags.intersection([.command, .option, .control])
-            guard mods.isEmpty else { return event }
-            let step = event.modifierFlags.contains(.shift) ? 500 : 100
-            switch event.keyCode {
-            case 123: self.adjustOffset(by: -step)   // ←
-            case 124: self.adjustOffset(by: step)    // →
-            default: return event
-            }
-            return nil
+            guard let self = self, event.window === self.view.window, self.offsetBar?.isHidden == false else { return event }
+            return LyricsOffsetView.handleArrowKey(event) ? nil : event
         }
     }
     
-    @objc private func offsetButtonAction(_ sender: NSButton) {
-        if sender.tag == 0 {
-            AppController.shared.lyricsOffset = 0
-        } else {
-            adjustOffset(by: sender.tag)
+    @objc private func toggleOffsetBar(_ sender: NSButton) {
+        let expanded = sender.state == .on
+        UserDefaults.standard.set(expanded, forKey: Self.offsetBarExpandedKey)
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.2
+            offsetBar?.animator().isHidden = !expanded
         }
-    }
-    
-    private func adjustOffset(by delta: Int) {
-        guard AppController.shared.currentLyrics != nil else { return }
-        AppController.shared.lyricsOffset += delta
-    }
-    
-    private func updateOffsetLabel(_ offset: Int) {
-        let hasLyrics = AppController.shared.currentLyrics != nil
-        offsetBar?.subviews.first?.subviews.forEach { ($0 as? NSButton)?.isEnabled = hasLyrics }
-        let seconds = String(format: "%.1f", Double(abs(offset)) / 1000)
-        if !hasLyrics {
-            offsetLabel?.stringValue = NSLocalizedString("No lyrics", comment: "offset bar")
-        } else if offset > 0 {
-            offsetLabel?.stringValue = String(format: NSLocalizedString("Lyrics %@ s earlier", comment: "offset bar"), seconds)
-        } else if offset < 0 {
-            offsetLabel?.stringValue = String(format: NSLocalizedString("Lyrics %@ s later", comment: "offset bar"), seconds)
-        } else {
-            offsetLabel?.stringValue = NSLocalizedString("No offset", comment: "offset bar")
-        }
-        displayLyrics(animation: false)
     }
     
     deinit {
@@ -201,7 +168,7 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
             let newLyrics = AppController.shared.currentLyrics
             self.lyricsScrollView.setupTextContents(lyrics: newLyrics)
             self.noLyricsLabel.isHidden = newLyrics != nil
-            self.updateOffsetLabel(AppController.shared.lyricsOffset)
+            self.displayLyrics(animation: false)
         }
     }
     

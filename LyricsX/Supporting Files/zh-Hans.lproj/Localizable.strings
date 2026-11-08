@@ -33,3 +33,6 @@
 "Lyrics %@ s earlier" = "歌词提前 %@ 秒";
 "Lyrics %@ s later" = "歌词延后 %@ 秒";
 "No offset" = "时间差 0";
+"Adjust Time Offset" = "调节时间差";
+"Adjust Time Offset..." = "调节时间差…";
+"← → adjust by 0.1 s, ⇧← ⇧→ by 0.5 s" = "← → 每次 0.1 秒，⇧← ⇧→ 每次 0.5 秒";

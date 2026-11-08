@@ -36,6 +36,7 @@ class KaraokeLyricsWindowController: NSWindowController {
         super.init(window: window)
         
         window.contentView?.addSubview(lyricsView)
+        lyricsView.contextMenuProvider = { [unowned self] in self.makeContextMenu() }
         
         addObserver()
         makeConstraints()
@@ -77,7 +78,20 @@ class KaraokeLyricsWindowController: NSWindowController {
                      ("Oh", "How I hate the way he makes me feel")]
         Timer.scheduledTimer(withTimeInterval: 1.5, repeats: true) { [weak self] timer in
             guard let self = self else { return }
-            if self.diagIndex >= pairs.count { timer.invalidate(); NSLog("[DIAG] done"); return }
+            if self.diagIndex >= pairs.count {
+                timer.invalidate()
+                let fake = NSEvent.mouseEvent(with: .rightMouseDown, location: .zero, modifierFlags: [], timestamp: 0, windowNumber: self.window?.windowNumber ?? 0, context: nil, eventNumber: 0, clickCount: 1, pressure: 1)!
+                NSLog("[DIAG] context menu: %@", self.lyricsView.menu(for: fake)?.items.map { $0.title }.joined(separator: " | ") ?? "nil")
+                LyricsOffsetPanelController.shared.present()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                    if let w = LyricsOffsetPanelController.shared.window,
+                       let img = CGWindowListCreateImage(.null, .optionIncludingWindow, CGWindowID(w.windowNumber), [.boundsIgnoreFraming, .bestResolution]) {
+                        try? NSBitmapImageRep(cgImage: img).representation(using: .png, properties: [:])?.write(to: URL(fileURLWithPath: "\(dir)/panel.png"))
+                    }
+                    NSLog("[DIAG] done")
+                }
+                return
+            }
             let (a, b) = pairs[self.diagIndex]
             let i = self.diagIndex
             self.diagIndex += 1
@@ -249,7 +263,7 @@ class KaraokeLyricsWindowController: NSWindowController {
     
     // MARK: Context Menu
     
-    override func rightMouseDown(with event: NSEvent) {
+    private func makeContextMenu() -> NSMenu {
         let menu = NSMenu()
         menu.autoenablesItems = false
         let appDelegate = NSApp.delegate as? AppDelegate
@@ -264,7 +278,12 @@ class KaraokeLyricsWindowController: NSWindowController {
         delete.target = appDelegate
         delete.isEnabled = AppController.shared.currentLyrics != nil
         
-        NSMenu.popUpContextMenu(menu, with: event, for: lyricsView)
+        menu.addItem(.separator())
+        let offset = menu.addItem(withTitle: NSLocalizedString("Adjust Time Offset...", comment: "desktop lyrics context menu"),
+                                  action: #selector(AppDelegate.adjustTimeOffset(_:)), keyEquivalent: "")
+        offset.target = appDelegate
+        offset.isEnabled = AppController.shared.currentLyrics != nil
+        return menu
     }
     
     override func mouseDown(with event: NSEvent) {

@@ -15,3 +15,23 @@
 
 /* alert title */
 "Unable to enable Touch Bar lyrics." = "タッチバーの歌詞を有効にすることができません。";
+
+/* b-z fork */
+"Search Lyrics..." = "歌詞を検索…";
+"Delete Lyrics" = "歌詞を削除";
+"Adjust Time Offset" = "タイミング調整";
+"Adjust Time Offset..." = "タイミング調整…";
+"← → adjust by 0.1 s, ⇧← ⇧→ by 0.5 s" = "← → で 0.1 秒、⇧← ⇧→ で 0.5 秒ずつ調整";
+"LyricsX %@ is available." = "LyricsX %@ が利用可能です。";
+"You are using %@." = "現在のバージョン：%@";
+"LyricsX is up to date." = "LyricsX は最新です。";
+"Unable to check for updates." = "アップデートを確認できません。";
+"Open Releases Page" = "リリースページを開く";
+"Show lyrics later" = "歌詞を遅らせる";
+"Show lyrics earlier" = "歌詞を早める";
+"Reset" = "リセット";
+"Reset offset to 0" = "タイミングを 0 に戻す";
+"No lyrics" = "歌詞なし";
+"Lyrics %@ s earlier" = "歌詞 %@ 秒早め";
+"Lyrics %@ s later" = "歌詞 %@ 秒遅め";
+"No offset" = "タイミング 0";

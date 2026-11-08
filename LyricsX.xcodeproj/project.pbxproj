@@ -24,6 +24,8 @@
 		BB003EFF248F89A700860FF7 /* CXShim in Frameworks */ = {isa = PBXBuildFile; productRef = BB003EFE248F89A700860FF7 /* CXShim */; };
 		BB003F01248F89B700860FF7 /* CXShim in Frameworks */ = {isa = PBXBuildFile; productRef = BB003F00248F89B700860FF7 /* CXShim */; };
 		BB03C8891FDF6FC000FBE0DA /* ChineseConverter+Singleton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB03C8881FDF6FC000FBE0DA /* ChineseConverter+Singleton.swift */; };
+		C0FFEE0200000000000000B2 /* LyricsOffsetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE0200000000000000B1 /* LyricsOffsetView.swift */; };
+		C0FFEE0200000000000000B3 /* LyricsOffsetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0FFEE0200000000000000B1 /* LyricsOffsetView.swift */; };
 		BB063B2E1E8A93C900A25C3E /* KaraokeLyricsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB063B2D1E8A93C900A25C3E /* KaraokeLyricsView.swift */; };
 		BB0A3AE122803B1D006C2E52 /* TouchBarPlaybackControlViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB63C24E22774B47008CFFBB /* TouchBarPlaybackControlViewController.swift */; };
 		BB0B296A1E7FBA2D00B1D6C9 /* PreferenceFilterViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB0B29691E7FBA2D00B1D6C9 /* PreferenceFilterViewController.swift */; };
@@ -196,6 +198,7 @@
 
 /* Begin PBXFileReference section */
 		BB03C8881FDF6FC000FBE0DA /* ChineseConverter+Singleton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChineseConverter+Singleton.swift"; sourceTree = "<group>"; };
+		C0FFEE0200000000000000B1 /* LyricsOffsetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LyricsOffsetView.swift; sourceTree = "<group>"; };
 		BB063B2D1E8A93C900A25C3E /* KaraokeLyricsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KaraokeLyricsView.swift; sourceTree = "<group>"; };
 		BB0B29691E7FBA2D00B1D6C9 /* PreferenceFilterViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferenceFilterViewController.swift; sourceTree = "<group>"; };
 		BB0BE9591F444CA00068FF67 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
@@ -372,6 +375,7 @@
 			isa = PBXGroup;
 			children = (
 				BB063B2D1E8A93C900A25C3E /* KaraokeLyricsView.swift */,
+				C0FFEE0200000000000000B1 /* LyricsOffsetView.swift */,
 				BB1B300420E87CC9002F1AF8 /* KaraokeLabel.swift */,
 				BB1B631A1E8CD7CA004CC9E0 /* ScrollLyricsView.swift */,
 				BBD03C361E9B2C7200EFB975 /* DragNDropView.swift */,
@@ -944,6 +948,7 @@
 				BB63C24F22774B47008CFFBB /* TouchBarPlaybackControlViewController.swift in Sources */,
 				E91F76EB21211B8D00755698 /* PreferenceViewController.swift in Sources */,
 				BB063B2E1E8A93C900A25C3E /* KaraokeLyricsView.swift in Sources */,
+				C0FFEE0200000000000000B2 /* LyricsOffsetView.swift in Sources */,
 				BBC1D5801E4AE3B9008869EC /* MenuBarLyricsController.swift in Sources */,
 				BB03C8891FDF6FC000FBE0DA /* ChineseConverter+Singleton.swift in Sources */,
 				BB5D4B2D2094A1D700844D9F /* FontSelectTextField.swift in Sources */,
@@ -988,6 +993,7 @@
 				BB50787E22014C3900B695C3 /* PreferenceShortcutViewController.swift in Sources */,
 				BB50787F22014C3900B695C3 /* PreferenceViewController.swift in Sources */,
 				BB50788022014C3900B695C3 /* KaraokeLyricsView.swift in Sources */,
+				C0FFEE0200000000000000B3 /* LyricsOffsetView.swift in Sources */,
 				BB50788222014C3900B695C3 /* MenuBarLyricsController.swift in Sources */,
 				BB50788322014C3900B695C3 /* ChineseConverter+Singleton.swift in Sources */,
 				BB50788422014C3900B695C3 /* FontSelectTextField.swift in Sources */,

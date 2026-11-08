@@ -41,6 +41,22 @@ class KaraokeLyricsView: NSView {
         }
     }
     
+    /// Builds the right-click menu on demand.
+    var contextMenuProvider: (() -> NSMenu)?
+    
+    override func menu(for event: NSEvent) -> NSMenu? {
+        return contextMenuProvider?()
+    }
+    
+    // The app is usually inactive; let the first click reach us.
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        return true
+    }
+    
+    /// Opacity while the mouse is over the lyrics with "hide when mouse passing by" on. Not 0:
+    /// a fully transparent window lets clicks fall through, so right-click would never reach us.
+    private let hiddenAlpha: CGFloat = 0.08
+    
     var displayLine1: KaraokeLabel?
     var displayLine2: KaraokeLabel?
     
@@ -170,14 +186,14 @@ class KaraokeLyricsView: NSView {
         if shouldHideWithMouse,
             let point = NSEvent.mouseLocation(in: self),
             bounds.contains(point) {
-            animator().alphaValue = 0
+            animator().alphaValue = hiddenAlpha
         } else {
             animator().alphaValue = 1
         }
     }
     
     override func mouseEntered(with event: NSEvent) {
-        animator().alphaValue = 0
+        animator().alphaValue = hiddenAlpha
     }
     
     override func mouseExited(with event: NSEvent) {
