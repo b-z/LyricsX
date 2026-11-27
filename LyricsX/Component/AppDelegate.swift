@@ -45,6 +45,10 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuItemValidation, NSMenu
         karaokeLyricsWC = KaraokeLyricsWindowController()
         karaokeLyricsWC?.showWindow(nil)
         if let dir = ProcessInfo.processInfo.environment["LX_DIAG_DIR"] { karaokeLyricsWC?.startDiagDemo(dir: dir) }
+        // Debug: with LX_DIAG_AI_TRANSLATE set, press "AI Translate" once the current lyrics are loaded.
+        if ProcessInfo.processInfo.environment["LX_DIAG_AI_TRANSLATE"] != nil {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 8) { AITranslator.shared.translateCurrentLyrics() }
+        }
         
         MenuBarLyricsController.shared.statusItem.menu = statusBarMenu
         statusBarMenu.delegate = self
