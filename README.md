@@ -10,7 +10,9 @@ Ultimate lyrics app for macOS.
 
 > **这是 [b-z/LyricsX](https://github.com/b-z/LyricsX) fork。** 主要改动：macOS 15.4+ 上能识别浏览器里的 YouTube Music 等播放、LRCLIB 歌词源、重写的歌词匹配打分、三行桌面歌词、时间差细调、播放控制侧栏。
 > 下载见本仓库的 [Releases](https://github.com/b-z/LyricsX/releases)；自己编译用 `scripts/build.sh Release`。
-> 这个 fork 只做了 ad-hoc 签名，首次打开前先运行 `xattr -dr com.apple.quarantine /Applications/LyricsX.app`。以下是上游原文。
+> 这个 fork 只做了 ad-hoc 签名，首次打开前先运行 `xattr -dr com.apple.quarantine /Applications/LyricsX.app`。
+>
+> **给歌词加翻译**：`tools/lrcx-translate/lrcx_translate.py` 负责列出、导出、写回 `~/Music/LyricsX` 里歌词的翻译，翻译交给 AI 来做。Claude Code 用户可以把 `skills/lyricsx-translate` 链接到 `~/.claude/skills/`，然后说「给缓存的外语歌词加中文翻译」。以下是上游原文。
 
 [LyricsX for iOS](https://github.com/ddddxxx/LyricsX-iOS) and [lyricsx-cli for Linux](https://github.com/ddddxxx/lyricsx-cli) is in early development.
 
