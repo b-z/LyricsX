@@ -24,6 +24,7 @@ final class NowPlayingSidebarView: NSVisualEffectView {
     private let elapsedLabel = NSTextField(labelWithString: "0:00")
     private let durationLabel = NSTextField(labelWithString: "0:00")
     private var playPauseButton: NSButton!
+    private let aiButton = NSButton(title: "", target: nil, action: nil)
     private var timer: Timer?
     private var cancelBag = Set<AnyCancellable>()
     private var isSeeking = false
@@ -81,7 +82,18 @@ final class NowPlayingSidebarView: NSVisualEffectView {
         controls.orientation = .horizontal
         controls.spacing = 20
 
-        let stack = NSStackView(views: [artworkView, titleLabel, artistLabel, progressSlider, timeRow, controls])
+        aiButton.bezelStyle = .recessed
+        aiButton.controlSize = .small
+        aiButton.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
+        aiButton.target = AITranslator.shared
+        aiButton.action = #selector(AITranslator.translateAction(_:))
+        aiButton.toolTip = NSLocalizedString("Translate these lyrics into Chinese with Claude (Sonnet)", comment: "AI translation button tooltip")
+        if #available(macOS 11.0, *) {
+            aiButton.image = NSImage(systemSymbolName: "character.bubble", accessibilityDescription: nil)
+            aiButton.imagePosition = .imageLeading
+        }
+
+        let stack = NSStackView(views: [artworkView, titleLabel, artistLabel, progressSlider, timeRow, controls, aiButton])
         stack.orientation = .vertical
         stack.alignment = .centerX
         stack.spacing = 6
@@ -89,6 +101,7 @@ final class NowPlayingSidebarView: NSVisualEffectView {
         stack.setCustomSpacing(10, after: artistLabel)
         stack.setCustomSpacing(2, after: progressSlider)
         stack.setCustomSpacing(8, after: timeRow)
+        stack.setCustomSpacing(16, after: controls)
         stack.translatesAutoresizingMaskIntoConstraints = false
         addSubview(stack)
         let inset: CGFloat = 16
@@ -125,7 +138,21 @@ final class NowPlayingSidebarView: NSVisualEffectView {
             .receive(on: DispatchQueue.main.cx)
             .sink { [weak self] _ in DispatchQueue.main.async { self?.refresh() } }
             .store(in: &cancelBag)
+        NotificationCenter.default.addObserver(self, selector: #selector(updateAIButton),
+                                               name: AITranslator.stateDidChange, object: nil)
+        AppController.shared.$currentLyrics
+            .receive(on: DispatchQueue.main.cx)
+            .sink { [weak self] _ in DispatchQueue.main.async { self?.updateAIButton() } }
+            .store(in: &cancelBag)
         refresh()
+        updateAIButton()
+    }
+
+    @objc private func updateAIButton() {
+        let running = AITranslator.shared.isRunning
+        aiButton.title = running ? NSLocalizedString("AI Translating…", comment: "AI translation menu")
+                                 : NSLocalizedString("AI Translate", comment: "AI translation menu")
+        aiButton.isEnabled = !running && AppController.shared.currentLyrics != nil
     }
 
     required init?(coder: NSCoder) {

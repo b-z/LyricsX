@@ -45,3 +45,14 @@
 "Whether the lyrics include a translation" = "歌词是否带翻译";
 "Score" = "分数";
 "Match score (0–1). ✓ = good enough to be used automatically" = "匹配分数（0–1）。✓ 表示达到自动选用的标准";
+
+/* AI translation */
+"AI Translate" = "AI 翻译";
+"AI Translating…" = "AI 翻译中…";
+"Auto AI-Translate New Lyrics" = "自动 AI 翻译新歌词";
+"Translate these lyrics into Chinese with Claude (Sonnet)" = "用 Claude（Sonnet）把这首歌词翻译成中文";
+"AI translation failed" = "AI 翻译失败";
+"The AI returned no translation." = "AI 没有返回译文。";
+"The AI translation timed out." = "AI 翻译超时。";
+"Claude Code was not found. Install it from https://claude.com/claude-code and sign in first." = "没有找到 Claude Code。请先从 https://claude.com/claude-code 安装并登录。";
+"Claude Code is not signed in (or the sign-in expired). Run “claude auth login” in Terminal, then try again." = "Claude Code 未登录或登录已过期。请在终端运行「claude auth login」后重试。";

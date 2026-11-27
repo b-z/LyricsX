@@ -215,6 +215,10 @@ class AppController: NSObject {
                 if defaults[.writeToiTunesAutomatically] {
                     self.writeToiTunes(overwrite: true)
                 }
+                // Lyrics newly found by this search (not loaded from the cache): offer them to the AI.
+                if let lyrics = self.currentLyrics, lyrics.metadata.request == req, lyrics.metadata.needsPersist {
+                    AITranslator.shared.autoTranslateIfNeeded(lyrics)
+                }
             }, receiveValue: { [unowned self] lyrics in
                 self.lyricsReceived(lyrics: lyrics)
             })

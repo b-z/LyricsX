@@ -16,6 +16,8 @@
 	<true/>
 	<key>DesktopLyricsThreeLineMode</key>
 	<true/>
+	<key>AutoAITranslate</key>
+	<false/>
 	<key>DisableLyricsWhenPaused</key>
 	<true/>
 	<key>DisableLyricsWhenSreenShot</key>

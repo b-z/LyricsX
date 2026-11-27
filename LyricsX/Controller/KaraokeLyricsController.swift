@@ -324,6 +324,9 @@ class KaraokeLyricsWindowController: NSWindowController {
                                   action: #selector(AppDelegate.adjustTimeOffset(_:)), keyEquivalent: "")
         offset.target = appDelegate
         offset.isEnabled = AppController.shared.currentLyrics != nil
+        
+        menu.addItem(.separator())
+        AITranslator.shared.makeMenuItems().forEach(menu.addItem)
         return menu
     }
     

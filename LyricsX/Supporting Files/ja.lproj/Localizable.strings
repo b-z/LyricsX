@@ -45,3 +45,14 @@
 "Whether the lyrics include a translation" = "歌詞に翻訳が含まれるか";
 "Score" = "スコア";
 "Match score (0–1). ✓ = good enough to be used automatically" = "一致スコア（0–1）。✓ は自動で使われる基準を満たすもの";
+
+/* AI translation */
+"AI Translate" = "AI 翻訳";
+"AI Translating…" = "AI 翻訳中…";
+"Auto AI-Translate New Lyrics" = "新しい歌詞を自動で AI 翻訳";
+"Translate these lyrics into Chinese with Claude (Sonnet)" = "Claude（Sonnet）でこの歌詞を中国語に翻訳";
+"AI translation failed" = "AI 翻訳に失敗しました";
+"The AI returned no translation." = "AI から訳文が返ってきませんでした。";
+"The AI translation timed out." = "AI 翻訳がタイムアウトしました。";
+"Claude Code was not found. Install it from https://claude.com/claude-code and sign in first." = "Claude Code が見つかりません。https://claude.com/claude-code からインストールしてログインしてください。";
+"Claude Code is not signed in (or the sign-in expired). Run “claude auth login” in Terminal, then try again." = "Claude Code にログインしていない（またはログインの期限切れ）です。ターミナルで「claude auth login」を実行してから再試行してください。";
