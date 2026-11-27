@@ -32,9 +32,12 @@ if [ ! -d "$ADAPTER/build/MediaRemoteAdapter.framework" ]; then
 fi
 
 # 4. App 本体（CXShim 要用 CombineX 实现，和上游 DevOpen 脚本一致）
+# Xcode 26 的 Swift 编译器开 -O 编 CombineX 会崩溃（LLVM verify 报错），Release 关掉 Swift 优化，出通用版。
+EXTRA=""
+[ "$CONFIG" = Release ] && EXTRA="SWIFT_OPTIMIZATION_LEVEL=-Onone ARCHS=\$(ARCHS_STANDARD) ONLY_ACTIVE_ARCH=NO"
 CX_COMBINE_IMPLEMENTATION=CombineX xcodebuild -project LyricsX.xcodeproj -scheme LyricsX -configuration "$CONFIG" \
   -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO DEVELOPMENT_TEAM= \
-  MACOSX_DEPLOYMENT_TARGET=10.13 build
+  MACOSX_DEPLOYMENT_TARGET=10.13 $EXTRA build
 git checkout -- "LyricsX/Supporting Files/Info.plist"   # 构建脚本会自动改版本号，还原它
 
 APP="build/Build/Products/$CONFIG/LyricsX.app"
