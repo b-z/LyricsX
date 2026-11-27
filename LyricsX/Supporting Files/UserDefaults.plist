@@ -59,6 +59,8 @@
 		<string>SoundTrack</string>
 		<string>アニメ</string>
 	</array>
+	<key>LyricsHUDSidebarExpanded</key>
+	<true/>
 	<key>LyricsSmartFilterEnabled</key>
 	<true/>
 	<key>LyricsWindowFontName</key>

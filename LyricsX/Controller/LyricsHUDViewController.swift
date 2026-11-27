@@ -58,6 +58,10 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
             let fontSize = CGFloat(change.newValue)
             self.lyricsScrollViewTopMargin.constant = fontSize
             self.lyricsScrollViewLeftMargin.constant = fontSize + self.sidebarInset
+            if let center = self.lyricsCenterXConstraint {
+                let shift = self.sidebarInset / 2
+                center.constant = (center.firstItem as? NSView) === self.lyricsScrollView ? shift : -shift
+            }
             self.displayLyrics(animation: false)
         }
         
@@ -142,7 +146,21 @@ class LyricsHUDViewController: NSViewController, NSWindowDelegate, ScrollLyricsV
         updateLyricsInset()
     }
     
+    /// The storyboard centers the lyrics on the whole window (centerX + symmetric margins). With the
+    /// sidebar open, shift that center right by half the sidebar so the lyrics are centered in the
+    /// remaining area.
+    private var lyricsCenterXConstraint: NSLayoutConstraint? {
+        return view.constraints.first {
+            ($0.firstItem as? NSView) === lyricsScrollView && $0.firstAttribute == .centerX
+                || ($0.secondItem as? NSView) === lyricsScrollView && $0.secondAttribute == .centerX
+        }
+    }
+    
     private func updateLyricsInset() {
+        if let center = lyricsCenterXConstraint {
+            let shift = sidebarInset / 2
+            center.constant = (center.firstItem as? NSView) === lyricsScrollView ? shift : -shift
+        }
         lyricsScrollViewLeftMargin.constant = CGFloat(defaults[.lyricsWindowFontSize]) + sidebarInset
         offsetBarLeading?.constant = sidebarInset  // keep the offset bar beside the sidebar
         displayLyrics(animation: false)
