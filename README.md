@@ -12,7 +12,9 @@ Ultimate lyrics app for macOS.
 > 下载见本仓库的 [Releases](https://github.com/b-z/LyricsX/releases)；自己编译用 `scripts/build.sh Release`。
 > 这个 fork 只做了 ad-hoc 签名，首次打开前先运行 `xattr -dr com.apple.quarantine /Applications/LyricsX.app`。
 >
-> **给歌词加翻译**：`tools/lrcx-translate/lrcx_translate.py` 负责列出、导出、写回 `~/Music/LyricsX` 里歌词的翻译，翻译交给 AI 来做。Claude Code 用户可以把 `skills/lyricsx-translate` 链接到 `~/.claude/skills/`，然后说「给缓存的外语歌词加中文翻译」。以下是上游原文。
+> **AI 翻译**：浮动歌词右键菜单和歌词窗口左侧有「AI 翻译」，也可以打开「自动 AI 翻译新歌词」。它通过本机 Claude Code（`claude auth login` 登录后）调用 Sonnet，不保存会话。
+>
+> **批量给缓存歌词加翻译**：`tools/lrcx-translate/lrcx_translate.py` 负责列出、导出、写回 `~/Music/LyricsX` 里歌词的翻译，翻译交给 AI 来做。Claude Code 用户可以把 `skills/lyricsx-translate` 链接到 `~/.claude/skills/`，然后说「给缓存的外语歌词加中文翻译」。以下是上游原文。
 
 [LyricsX for iOS](https://github.com/ddddxxx/LyricsX-iOS) and [lyricsx-cli for Linux](https://github.com/ddddxxx/lyricsx-cli) is in early development.
 
