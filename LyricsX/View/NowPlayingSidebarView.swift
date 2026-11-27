@@ -113,12 +113,18 @@ final class NowPlayingSidebarView: NSVisualEffectView {
             .receive(on: DispatchQueue.main.cx)
             .sink { [weak self] _ in DispatchQueue.main.async { self?.refresh() } }
             .store(in: &cancelBag)
-        if let adapter = selectedPlayer.designatedPlayer as? MediaRemoteAdapterPlayer {
-            adapter.$artwork
-                .receive(on: DispatchQueue.main.cx)
-                .sink { [weak self] _ in DispatchQueue.main.async { self?.refresh() } }
-                .store(in: &cancelBag)
-        }
+        // Follow the artwork of whichever player is selected now, not just the one at launch.
+        selectedPlayer.$designatedPlayer
+            .map { player -> AnyPublisher<Void, Never> in
+                if let adapter = player as? MediaRemoteAdapterPlayer {
+                    return adapter.$artwork.map { _ in () }.eraseToAnyPublisher()
+                }
+                return Just(()).eraseToAnyPublisher()
+            }
+            .switchToLatest()
+            .receive(on: DispatchQueue.main.cx)
+            .sink { [weak self] _ in DispatchQueue.main.async { self?.refresh() } }
+            .store(in: &cancelBag)
         refresh()
     }
 
@@ -130,15 +136,28 @@ final class NowPlayingSidebarView: NSVisualEffectView {
         didSet { updateTimer() }
     }
 
+    private var occlusionObserver: NSObjectProtocol?
+
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
+        occlusionObserver.map(NotificationCenter.default.removeObserver)
+        occlusionObserver = nil
+        if let window = window {
+            // Closed, minimized or fully covered windows report "not visible": stop ticking then.
+            occlusionObserver = NotificationCenter.default.addObserver(
+                forName: NSWindow.didChangeOcclusionStateNotification, object: window, queue: .main
+            ) { [weak self] _ in self?.updateTimer() }
+        }
         updateTimer()
     }
 
     private func updateTimer() {
+        let shouldRun = !isHidden && window?.occlusionState.contains(.visible) == true
+        guard shouldRun != (timer != nil) else { return }
         timer?.invalidate()
         timer = nil
-        guard window != nil, !isHidden else { return }
+        guard shouldRun else { return }
+        updateProgress()
         timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in self?.updateProgress() }
     }
 

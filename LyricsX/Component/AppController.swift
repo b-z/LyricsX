@@ -203,8 +203,11 @@ class AppController: NSObject {
         let duration = track.duration ?? 0
         // Search with the first artist only: "A和B" / "A & B" make keyword searches noisy. The full
         // string is kept in userInfo so scoring can still match any of the artists.
-        let req = LyricsSearchRequest(searchTerm: .info(title: title, artist: primaryArtist(of: artist)),
-                                      duration: duration, limit: 5, userInfo: ["artist": artist])
+        // YouTube-style titles ("Artist - Song (Official Video)") are cleaned before searching; a music
+        // video's length rarely matches the song, so it is not used for matching then.
+        let info = lyricsSearchInfo(title: title, artist: artist)
+        let req = LyricsSearchRequest(searchTerm: .info(title: info.title, artist: primaryArtist(of: info.artist)),
+                                      duration: info.isVideo ? 0 : duration, limit: 5, userInfo: ["artist": info.artist])
         searchRequest = req
         searchCanceller = lyricsManager.lyricsPublisher(request: req)
             .timeout(.seconds(10), scheduler: DispatchQueue.lyricsDisplay.cx)
@@ -250,6 +253,90 @@ func primaryArtist(of artist: String) -> String {
     guard let range = artist.range(of: pattern, options: [.regularExpression, .caseInsensitive]),
           range.lowerBound > artist.startIndex else { return artist }
     return String(artist[..<range.lowerBound]).trimmingCharacters(in: .whitespaces)
+}
+
+
+/// Title/artist as they should be used for a lyrics search, plus whether the track looks like a
+/// music video (whose length usually differs from the song's because of intros and outros).
+struct LyricsSearchInfo: Equatable {
+    var title: String
+    var artist: String
+    var isVideo: Bool
+}
+
+/// Clean up YouTube-style metadata before searching lyrics:
+/// - artist: "Aimer - Topic" → "Aimer", "TaylorSwiftVEVO" → "TaylorSwift", "XX Official Channel" → "XX"
+/// - title: drops "(Official Music Video)", "[MV]", "【歌词版】"…, takes the song out of
+///   "Artist - Song", "Song | Artist" and "Artist『Song』MV".
+/// Titles from music apps (already clean) come back unchanged.
+func lyricsSearchInfo(title rawTitle: String, artist rawArtist: String) -> LyricsSearchInfo {
+    func trim(_ s: String) -> String {
+        return s.replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
+            .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines.union(CharacterSet(charactersIn: "-–—|｜/／・:：")))
+    }
+    func strip(_ s: inout String, _ pattern: String) -> Bool {
+        let new = s.replacingOccurrences(of: pattern, with: " ", options: [.regularExpression, .caseInsensitive])
+        defer { s = new }
+        return new != s
+    }
+    func key(_ s: String) -> String {
+        return s.lowercased().unicodeScalars.filter { CharacterSet.alphanumerics.contains($0) }.map(String.init).joined()
+    }
+
+    var isVideo = false
+
+    // Artist: channel-name decorations
+    var artist = rawArtist
+    _ = strip(&artist, #"\s*-\s*Topic$"#)
+    if strip(&artist, #"(?<=\S)VEVO$"#) { isVideo = true }
+    _ = strip(&artist, #"\s*(?:Official(?:\s+YouTube)?(?:\s+Channel)?|公式(?:チャンネル)?|官方(?:频道|頻道)?)$"#)
+    artist = trim(artist)
+    if artist.isEmpty { artist = trim(rawArtist) }
+
+    // Title: bracketed or trailing video/lyrics markers
+    let videoWords = #"\b(?:official\s+)?(?:music\s+video|lyric\s+video|video|m/?v|p/?v|4k|hd|full\s+ver(?:sion)?\.?)\b|(?:ミュージック\s*ビデオ|视频|視頻)"#
+    let otherWords = #"\b(?:official(?:\s+audio)?|audio|lyrics?|visuali[sz]er|hq|remaster(?:ed)?(?:\s+\d{4})?)\b|(?:歌词|歌詞|动态歌词|字幕|中字|官方|公式|高音质|高音質|无损|無損)"#
+    let open = #"[\(\[【（〔〖]"#, close = #"[\)\]】）〕〗]"#, inside = #"[^\(\)\[\]【】（）〔〕〖〗]*?"#
+    var title = rawTitle
+    if strip(&title, "\\s*" + open + inside + "(?:" + videoWords + ")" + inside + close) { isVideo = true }
+    _ = strip(&title, "\\s*" + open + inside + "(?:" + otherWords + ")" + inside + close)
+    if strip(&title, #"\s*[-–|｜]?\s*(?:official\s+)?(?:music\s+video|lyric\s+video|video|mv|m/v|pv)\s*$"#) { isVideo = true }
+    _ = strip(&title, #"\s+-\s+(?:\d{4}\s+)?remaster(?:ed)?(?:\s+\d{4})?(?:\s+version)?\s*$"#)
+    title = trim(title)
+
+    // "Artist『Song』" / "Artist「Song」" / "Artist【Song】MV"
+    if let r = title.range(of: #"[『「【]([^』」】]+)[』」】]"#, options: .regularExpression) {
+        let inner = String(title[r]).dropFirst().dropLast()
+        let outside = title.replacingCharacters(in: r, with: " ")
+        let artistKey = key(artist)
+        if isVideo || trim(outside).isEmpty || (!artistKey.isEmpty && key(outside).contains(artistKey)) {
+            title = trim(String(inner))
+        }
+    }
+
+    // "Artist - Song", "Song - Artist", "Song | Artist"
+    let parts = title.components(separatedBy: " - ").count == 2 ? title.components(separatedBy: " - ")
+        : title.components(separatedBy: " – ").count == 2 ? title.components(separatedBy: " – ")
+        : title.components(separatedBy: CharacterSet(charactersIn: "|｜")).count == 2 ? title.components(separatedBy: CharacterSet(charactersIn: "|｜"))
+        : []
+    if parts.count == 2 {
+        let left = trim(parts[0]), right = trim(parts[1])
+        let a = key(artist), l = key(left), r = key(right)
+        func matches(_ x: String) -> Bool { return !x.isEmpty && !a.isEmpty && (x.contains(a) || a.contains(x)) }
+        if matches(l) && !right.isEmpty {
+            title = right
+        } else if matches(r) && !left.isEmpty {
+            title = left
+        } else if isVideo && !left.isEmpty && !right.isEmpty {
+            // Uploaded by someone else: "Real Artist - Song"
+            artist = left
+            title = right
+        }
+    }
+
+    title = trim(title)
+    if title.isEmpty { title = trim(rawTitle) }
+    return LyricsSearchInfo(title: title, artist: artist, isVideo: isVideo)
 }
 
 extension AppController {

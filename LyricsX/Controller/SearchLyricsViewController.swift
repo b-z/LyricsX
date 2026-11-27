@@ -155,8 +155,8 @@ class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTable
             tableView.reloadData()
             return
         }
-        let artist = track.artist ?? ""
-        let title = track.title ?? ""
+        let info = lyricsSearchInfo(title: track.title ?? "", artist: track.artist ?? "")
+        let (artist, title) = (info.artist, info.title)
         if (searchArtist, searchTitle) != (artist, title) {
             (searchArtist, searchTitle) = (artist, title)
             searchAction(nil)
@@ -171,7 +171,8 @@ class SearchLyricsViewController: NSViewController, NSTableViewDelegate, NSTable
         lyricsPreviewTextView.string = " "
         
         let track = selectedPlayer.currentTrack
-        let duration = track?.duration ?? 0
+        let isVideo = track.map { lyricsSearchInfo(title: $0.title ?? "", artist: $0.artist ?? "").isVideo } ?? false
+        let duration = isVideo ? 0 : (track?.duration ?? 0)
         let req = LyricsSearchRequest(searchTerm: .info(title: searchTitle, artist: primaryArtist(of: searchArtist)),
                                       duration: duration, limit: 8, userInfo: ["artist": searchArtist])
         searchRequest = req
