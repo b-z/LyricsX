@@ -241,7 +241,15 @@ def cmd_import(args) -> None:
         sys.exit(f"只有 {len(filled)}/{len(sung)} 行有译文，像是没对齐。确认无误请加 --allow-partial。")
 
     tag = f"tr:{args.lang}"
-    by_file_index = {sung[n - 1].file_index: text for n, text in filled.items()}
+    # LyricsX 按时间标签挂译文：几句歌词共用一个时间标签时，译文合并成一条挂在第一句上
+    by_time: dict = {}
+    for n in sorted(filled):
+        line = sung[n - 1]
+        by_time.setdefault(line.time_tag, (line.file_index, []))[1].append(filled[n])
+    merged = [t for t, (_, texts) in by_time.items() if len(texts) > 1]
+    if merged:
+        print(f"注意：{len(merged)} 个时间点有多句歌词，译文已合并：{', '.join(merged[:5])}", file=sys.stderr)
+    by_file_index = {idx: " / ".join(dict.fromkeys(texts)) for idx, texts in by_time.values()}
     # 先去掉旧的同语言翻译，再在对应歌词行后插入新翻译
     new_lines = []
     for i, line in enumerate(lrc.raw_lines):
